@@ -18,22 +18,17 @@ jobs:
           script: |
             cd /home/${{ secrets.EC2_USER }}/entrysport
 
-            # Traer los últimos cambios
             git pull origin main
 
-            # Recrear el .env en el servidor con los secrets de GitHub
             cat > .env << 'EOF'
             DB_USERNAME=${{ secrets.DB_USERNAME }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             DB_NAME=${{ secrets.DB_NAME }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_EXPIRES_IN=8h
-            FRONTEND_URL=http://${{ secrets.EC2_HOST }}
-            VITE_API_URL=http://${{ secrets.EC2_HOST }}:3000/api
+            FRONTEND_URL=https://chocolaterospe.space
+            VITE_API_URL=https://chocolaterospe.space/api
             EOF
 
-            # Reconstruir y levantar contenedores
             docker compose up --build -d
-
-            # Limpiar imágenes antiguas para liberar espacio
             docker image prune -f
