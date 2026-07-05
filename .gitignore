@@ -1,0 +1,29 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno (NUNCA subir al repo)
+.env
+grassbooking-backend/.env
+grassbooking-frontend/.env
+
+# Build outputs
+dist/
+grassbooking-backend/dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Claude Code
+.claude/
