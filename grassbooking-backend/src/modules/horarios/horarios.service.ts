@@ -4,8 +4,11 @@ import { Repository } from 'typeorm';
 import { Horario, DiaSemana } from './entities/horario.entity';
 import { Reserva } from '../reservas/entities/reserva.entity';
 import { ExcepcionesService } from '../excepciones/excepciones.service';
+import { CanchasService } from '../canchas/canchas.service';
+import { LocalesService } from '../locales/locales.service';
 import { CreateHorarioDto } from './dto/create-horario.dto';
 import { UpdateHorarioDto } from './dto/update-horario.dto';
+import { Usuario } from '../usuarios/entities/usuario.entity';
 
 const DIAS_SEMANA: Record<number, DiaSemana> = {
   0: 'domingo',
@@ -25,6 +28,8 @@ export class HorariosService {
     @InjectRepository(Reserva)
     private reservasRepository: Repository<Reserva>,
     private excepcionesService: ExcepcionesService,
+    private canchasService: CanchasService,
+    private localesService: LocalesService,
   ) {}
 
   async findByCancha(idCancha: number) {
@@ -109,18 +114,26 @@ export class HorariosService {
     };
   }
 
-  async create(createDto: CreateHorarioDto) {
+  private async verificarPropietarioDeCancha(usuario: Usuario, idCancha: number) {
+    const { data: cancha } = await this.canchasService.findOne(idCancha);
+    this.localesService.verificarPropietario(usuario, cancha.idLocal);
+  }
+
+  async create(createDto: CreateHorarioDto, usuario: Usuario) {
+    await this.verificarPropietarioDeCancha(usuario, createDto.idCancha);
     const horario = this.horariosRepository.create(createDto);
     const guardado = await this.horariosRepository.save(horario);
     return { data: guardado, message: 'Horario creado' };
   }
 
-  async update(id: number, updateDto: UpdateHorarioDto) {
+  async update(id: number, updateDto: UpdateHorarioDto, usuario: Usuario) {
     const horario = await this.horariosRepository.findOne({ where: { id } });
 
     if (!horario) {
       throw new NotFoundException(`Horario #${id} no encontrado`);
     }
+
+    await this.verificarPropietarioDeCancha(usuario, horario.idCancha);
 
     Object.assign(horario, updateDto);
     const actualizado = await this.horariosRepository.save(horario);

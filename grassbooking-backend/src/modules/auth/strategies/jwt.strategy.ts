@@ -29,7 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload) {
     const usuario = await this.usuariosRepository.findOne({
       where: { id: payload.sub },
-      select: ['id', 'email', 'nombre', 'rol'],
+      select: ['id', 'email', 'nombre', 'rol', 'idLocal', 'telefono'],
     });
 
     if (!usuario) {

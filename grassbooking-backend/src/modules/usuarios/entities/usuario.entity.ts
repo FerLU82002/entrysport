@@ -4,9 +4,14 @@ import {
   Column,
   CreateDateColumn,
   OneToMany,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Reserva } from '../../reservas/entities/reserva.entity';
 import { Notificacion } from '../../notificaciones/entities/notificacion.entity';
+import { Local } from '../../locales/entities/local.entity';
+
+export type RolUsuario = 'usuario' | 'admin_local' | 'super_admin';
 
 @Entity('usuarios')
 export class Usuario {
@@ -25,8 +30,15 @@ export class Usuario {
   @Column({ name: 'password_hash', type: 'text' })
   passwordHash: string;
 
-  @Column({ type: 'enum', enum: ['usuario', 'admin'], default: 'usuario' })
-  rol: 'usuario' | 'admin';
+  @Column({
+    type: 'enum',
+    enum: ['usuario', 'admin_local', 'super_admin'],
+    default: 'usuario',
+  })
+  rol: RolUsuario;
+
+  @Column({ name: 'id_local', type: 'integer', nullable: true })
+  idLocal: number | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
@@ -36,4 +48,8 @@ export class Usuario {
 
   @OneToMany(() => Notificacion, (notificacion) => notificacion.usuario)
   notificaciones: Notificacion[];
+
+  @ManyToOne(() => Local, (local) => local.administradores, { nullable: true })
+  @JoinColumn({ name: 'id_local' })
+  local: Local;
 }

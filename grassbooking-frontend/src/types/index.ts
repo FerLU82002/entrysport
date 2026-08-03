@@ -1,21 +1,75 @@
+export type RolUsuario = 'usuario' | 'admin_local' | 'super_admin';
+
 export interface Usuario {
   id: number;
   nombre: string;
   email: string;
   telefono?: string;
-  rol: 'usuario' | 'admin';
+  rol: RolUsuario;
+  idLocal?: number | null;
   createdAt?: string;
+}
+
+export interface Local {
+  id: number;
+  nombre: string;
+  descripcion?: string;
+  direccion?: string;
+  telefono: string;
+  email?: string;
+  imagenUrl?: string;
+  fotos?: string[];
+  estado: 'activo' | 'inactivo';
+  createdAt?: string;
+  canchas?: Cancha[];
+  administradores?: Usuario[];
+}
+
+export interface ConfiguracionPago {
+  moneda: string;
+  aceptaEfectivo: boolean;
+  culqiActivo: boolean;
+  culqiPublicKey?: string | null;
+  culqiSecretConfigurada?: boolean;
+  yapeActivo: boolean;
+  yapeQrUrl?: string | null;
+  yapeTelefono?: string | null;
+}
+
+export type EstadoConexionMP = 'pendiente' | 'conectada' | 'desconectada' | 'error';
+
+export interface EstadoMercadoPago {
+  conectada: boolean;
+  estado: EstadoConexionMP;
+  mercadoPagoUserId: string | null;
+  conectadoEn: string | null;
+}
+
+export interface ConfiguracionPagoPublica {
+  moneda: string;
+  aceptaEfectivo: boolean;
+  culqiActivo: boolean;
+  culqiPublicKey: string | null;
+  yapeActivo: boolean;
+  yapeQrUrl: string | null;
+  yapeTelefono: string | null;
 }
 
 export interface Cancha {
   id: number;
+  idLocal: number;
   nombre: string;
+  deporte: string;
   tipoSuperficie: string;
-  precioHora: number;
+  precioHoraDia: number;
+  precioHoraNoche: number;
+  horaInicioNoche: string;
   estado: 'activa' | 'inactiva';
   descripcion?: string;
   imagenUrl?: string;
+  fotos?: string[];
   createdAt?: string;
+  local?: Local;
 }
 
 export interface Horario {
@@ -74,14 +128,18 @@ export interface Reserva {
 }
 
 export type EstadoPago = 'pendiente' | 'pagado' | 'reembolsado';
+export type PasarelaPago = 'efectivo' | 'culqi' | 'mercadopago';
 
 export interface Pago {
   id: number;
   idReserva: number;
   monto: number;
   metodoPago: string;
+  pasarela: PasarelaPago;
+  referenciaExterna?: string;
   estadoPago: EstadoPago;
   fechaPago?: string;
+  reserva?: Reserva;
 }
 
 export type TipoNotificacion =
@@ -161,11 +219,11 @@ export interface DatoIngreso {
 }
 
 export const ESTADO_COLORES: Record<EstadoReserva, string> = {
-  pendiente: 'bg-orange-100 text-orange-800',
-  confirmada: 'bg-green-100 text-green-800',
-  cancelada: 'bg-red-100 text-red-800',
-  completada: 'bg-blue-100 text-blue-800',
-  no_asistio: 'bg-gray-100 text-gray-800',
+  pendiente: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200',
+  confirmada: 'bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-200',
+  cancelada: 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-200',
+  completada: 'bg-ink-100 text-ink-700 ring-1 ring-inset ring-ink-200',
+  no_asistio: 'bg-ink-50 text-ink-500 ring-1 ring-inset ring-ink-200',
 };
 
 export const ESTADO_LABELS: Record<EstadoReserva, string> = {

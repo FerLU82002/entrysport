@@ -29,22 +29,25 @@ export const GraficoIngresos = ({ datos }: Props) => {
         data={dataFormateada}
         margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-        <XAxis dataKey="semanaCorta" tick={{ fontSize: 11 }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#eceeef" vertical={false} />
+        <XAxis dataKey="semanaCorta" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={{ stroke: '#d7dade' }} tickLine={false} />
         <YAxis
-          tick={{ fontSize: 11 }}
+          tick={{ fontSize: 11, fill: '#6b7280' }}
           tickFormatter={(v) => `S/${v}`}
+          axisLine={false}
+          tickLine={false}
         />
         <Tooltip
           formatter={(value: number) => [`S/ ${value.toFixed(2)}`, 'Ingresos']}
+          contentStyle={{ borderRadius: 8, borderColor: '#d7dade', fontSize: 13 }}
         />
         <Line
           type="monotone"
           dataKey="totalIngresos"
-          stroke="#16a34a"
-          strokeWidth={2.5}
-          dot={{ fill: '#16a34a', r: 4 }}
-          activeDot={{ r: 6 }}
+          stroke="#17181b"
+          strokeWidth={2}
+          dot={{ fill: '#17181b', r: 3 }}
+          activeDot={{ r: 5 }}
         />
       </LineChart>
     </ResponsiveContainer>

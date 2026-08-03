@@ -13,7 +13,7 @@ const DIA_LABELS: Record<string, string> = {
 };
 
 export const HorariosPage = () => {
-  const { canchas } = useCanchas(false);
+  const { canchas } = useCanchas('mi-local');
   const [canchaId, setCanchaId] = useState<number | null>(null);
   const [horarios, setHorarios] = useState<Horario[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,7 +58,7 @@ export const HorariosPage = () => {
   }, {});
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-ink-50">
       <div className="hidden md:block">
         <Sidebar />
       </div>
@@ -66,10 +66,10 @@ export const HorariosPage = () => {
         <Navbar />
         <div className="flex-1 overflow-y-auto">
         <main className="p-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Configuración de horarios</h1>
+          <h1 className="text-xl font-semibold text-ink-900 mb-6">Configuración de horarios</h1>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Cancha</label>
+            <label className="block text-sm font-medium text-ink-700 mb-1.5">Cancha</label>
             <select
               value={canchaId || ''}
               onChange={(e) => setCanchaId(Number(e.target.value))}
@@ -81,7 +81,7 @@ export const HorariosPage = () => {
             </select>
           </div>
 
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-ink-500 mb-4">
             Haz clic en un horario para activar/desactivar. Los horarios desactivados no estarán disponibles para reserva.
           </p>
 
@@ -94,7 +94,7 @@ export const HorariosPage = () => {
               <div className="grid grid-cols-7 gap-2 min-w-[700px]">
                 {DIAS.map((dia) => (
                   <div key={dia}>
-                    <div className="text-center font-medium text-gray-700 text-sm mb-2 pb-2 border-b">
+                    <div className="text-center font-medium text-ink-700 text-sm mb-2 pb-2 border-b border-ink-100">
                       {DIA_LABELS[dia]}
                     </div>
                     <div className="space-y-1">
@@ -107,10 +107,10 @@ export const HorariosPage = () => {
                             key={horario.id}
                             onClick={() => toggleDisponible(horario)}
                             disabled={toggling === horario.id}
-                            className={`w-full text-xs py-1.5 rounded text-center transition-colors ${
+                            className={`w-full text-xs py-1.5 rounded text-center transition-colors border ${
                               horario.disponible
-                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                : 'bg-red-50 text-red-500 border-red-100 hover:bg-red-100'
                             }`}
                           >
                             {toggling === horario.id ? '...' : `${hora12}${ampm}`}

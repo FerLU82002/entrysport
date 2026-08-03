@@ -42,34 +42,30 @@ export const CalendarioDisponibilidad = ({
   }
 
   if (error) {
-    return (
-      <div className="text-center py-6 text-red-500 text-sm">
-        {error}
-      </div>
-    );
+    return <div className="text-center py-6 text-red-600 text-sm">{error}</div>;
   }
 
   if (slots.length === 0) {
     return (
-      <div className="text-center py-6 text-gray-400">
-        <p>No hay horarios configurados para esta fecha</p>
+      <div className="text-center py-6 text-ink-400 text-sm">
+        No hay horarios configurados para esta fecha
       </div>
     );
   }
 
   return (
     <div>
-      <div className="flex gap-4 mb-4 text-xs">
+      <div className="flex gap-4 mb-4 text-xs text-ink-500">
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-green-500 inline-block" />
+          <span className="w-2 h-2 rounded-sm bg-emerald-500 inline-block" />
           Disponible
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-400 inline-block" />
+          <span className="w-2 h-2 rounded-sm bg-red-400 inline-block" />
           Ocupado
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-blue-500 inline-block" />
+          <span className="w-2 h-2 rounded-sm bg-ink-900 inline-block" />
           Seleccionado
         </span>
       </div>
@@ -87,20 +83,15 @@ export const CalendarioDisponibilidad = ({
               key={slot.id}
               disabled={!slot.disponible}
               onClick={() => slot.disponible && onSeleccionar(slot)}
-              className={`
-                py-3 px-2 rounded-lg text-sm font-medium transition-all
-                ${
-                  isSelected
-                    ? 'bg-blue-600 text-white shadow-lg scale-105'
-                    : slot.disponible
-                    ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 hover:border-green-400 cursor-pointer'
-                    : 'bg-red-50 text-red-400 border border-red-100 cursor-not-allowed opacity-60'
-                }
-              `}
+              className={`py-2.5 px-2 rounded-md text-sm font-medium border transition-colors ${
+                isSelected
+                  ? 'bg-ink-900 text-white border-ink-900'
+                  : slot.disponible
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:border-emerald-400 hover:bg-emerald-100 cursor-pointer'
+                  : 'bg-red-50 text-red-400 border-red-100 cursor-not-allowed'
+              }`}
             >
-              <span className="block text-center">
-                {hora12}:00 {ampm}
-              </span>
+              {hora12}:00 {ampm}
             </button>
           );
         })}

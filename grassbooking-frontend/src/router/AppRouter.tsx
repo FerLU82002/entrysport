@@ -8,22 +8,35 @@ import { RegisterPage } from '../pages/auth/RegisterPage';
 
 import { DashboardUsuario } from '../pages/usuario/DashboardUsuario';
 import { CanchasPage } from '../pages/usuario/CanchasPage';
+import { LocalesPage } from '../pages/usuario/LocalesPage';
+import { LocalDetallePage } from '../pages/usuario/LocalDetallePage';
 import { ReservaPage } from '../pages/usuario/ReservaPage';
 import { MisReservasPage } from '../pages/usuario/MisReservasPage';
 
 import { DashboardAdmin } from '../pages/admin/DashboardAdmin';
+import { MiLocalPage } from '../pages/admin/MiLocalPage';
 import { GestionCanchasPage } from '../pages/admin/GestionCanchasPage';
 import { HorariosPage } from '../pages/admin/HorariosPage';
 import { ReservasAdminPage } from '../pages/admin/ReservasAdminPage';
 import { ReportesPage } from '../pages/admin/ReportesPage';
 import { ExcepcionesPage } from '../pages/admin/ExcepcionesPage';
 
+import { DashboardSuperAdmin } from '../pages/superadmin/DashboardSuperAdmin';
+import { LocalesAdminPage } from '../pages/superadmin/LocalesAdminPage';
+import { CrearAdminLocalPage } from '../pages/superadmin/CrearAdminLocalPage';
+
+const rutaInicioPorRol = (rol?: string) => {
+  if (rol === 'super_admin') return '/superadmin';
+  if (rol === 'admin_local') return '/admin';
+  return '/dashboard';
+};
+
 export const AppRouter = () => {
   const { isLoading, isAuthenticated, usuario } = useAuth();
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen bg-ink-50">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -33,22 +46,28 @@ export const AppRouter = () => {
     <Routes>
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to={usuario?.rol === 'admin' ? '/admin' : '/dashboard'} /> : <LoginPage />}
+        element={isAuthenticated ? <Navigate to={rutaInicioPorRol(usuario?.rol)} /> : <LoginPage />}
       />
       <Route
         path="/register"
         element={isAuthenticated ? <Navigate to="/dashboard" /> : <RegisterPage />}
       />
 
-      <Route element={<ProtectedRoute rol="usuario" />}>
+      {/* Explorar locales y canchas, y ver disponibilidad, es público — como en Joinnus.
+          Solo se pide cuenta al confirmar la reserva (ver ConfirmacionReserva). */}
+      <Route path="/locales" element={<LocalesPage />} />
+      <Route path="/locales/:id" element={<LocalDetallePage />} />
+      <Route path="/canchas" element={<CanchasPage />} />
+      <Route path="/reservar/:idCancha" element={<ReservaPage />} />
+
+      <Route element={<ProtectedRoute roles={['usuario']} />}>
         <Route path="/dashboard" element={<DashboardUsuario />} />
-        <Route path="/canchas" element={<CanchasPage />} />
-        <Route path="/reservar/:idCancha" element={<ReservaPage />} />
         <Route path="/mis-reservas" element={<MisReservasPage />} />
       </Route>
 
-      <Route element={<ProtectedRoute rol="admin" />}>
+      <Route element={<ProtectedRoute roles={['admin_local']} />}>
         <Route path="/admin" element={<DashboardAdmin />} />
+        <Route path="/admin/mi-local" element={<MiLocalPage />} />
         <Route path="/admin/canchas" element={<GestionCanchasPage />} />
         <Route path="/admin/horarios" element={<HorariosPage />} />
         <Route path="/admin/reservas" element={<ReservasAdminPage />} />
@@ -56,13 +75,19 @@ export const AppRouter = () => {
         <Route path="/admin/excepciones" element={<ExcepcionesPage />} />
       </Route>
 
+      <Route element={<ProtectedRoute roles={['super_admin']} />}>
+        <Route path="/superadmin" element={<DashboardSuperAdmin />} />
+        <Route path="/superadmin/locales" element={<LocalesAdminPage />} />
+        <Route path="/superadmin/crear-admin" element={<CrearAdminLocalPage />} />
+      </Route>
+
       <Route
         path="/"
         element={
           isAuthenticated ? (
-            <Navigate to={usuario?.rol === 'admin' ? '/admin' : '/dashboard'} />
+            <Navigate to={rutaInicioPorRol(usuario?.rol)} />
           ) : (
-            <Navigate to="/login" />
+            <Navigate to="/locales" />
           )
         }
       />

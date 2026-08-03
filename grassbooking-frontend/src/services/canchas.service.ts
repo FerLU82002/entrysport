@@ -2,9 +2,20 @@ import api from './api';
 import { ApiResponse, Cancha } from '../types';
 
 export const canchasService = {
-  async getAll(soloActivas = true) {
-    const params = soloActivas ? {} : { todas: 'true' };
+  async getAll(idLocal?: number) {
+    const params = idLocal ? { idLocal } : {};
     const res = await api.get<ApiResponse<Cancha[]>>('/canchas', { params });
+    return res.data;
+  },
+
+  async getMisCanchas() {
+    const res = await api.get<ApiResponse<Cancha[]>>('/canchas/mi-local');
+    return res.data;
+  },
+
+  async getAllAdmin(idLocal?: number) {
+    const params = idLocal ? { idLocal } : {};
+    const res = await api.get<ApiResponse<Cancha[]>>('/canchas/admin', { params });
     return res.data;
   },
 

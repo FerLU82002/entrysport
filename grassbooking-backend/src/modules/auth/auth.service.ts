@@ -65,7 +65,12 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
 
-    const payload = { sub: usuario.id, email: usuario.email, rol: usuario.rol };
+    const payload = {
+      sub: usuario.id,
+      email: usuario.email,
+      rol: usuario.rol,
+      idLocal: usuario.idLocal,
+    };
     const token = this.jwtService.sign(payload);
 
     return {
@@ -77,6 +82,7 @@ export class AuthService {
           email: usuario.email,
           telefono: usuario.telefono,
           rol: usuario.rol,
+          idLocal: usuario.idLocal,
         },
       },
       message: 'Inicio de sesión exitoso',
@@ -99,7 +105,7 @@ export class AuthService {
   async obtenerPerfil(userId: number) {
     const usuario = await this.usuariosRepository.findOne({
       where: { id: userId },
-      select: ['id', 'nombre', 'email', 'telefono', 'rol', 'createdAt'],
+      select: ['id', 'nombre', 'email', 'telefono', 'rol', 'idLocal', 'createdAt'],
     });
 
     return { data: usuario, message: 'Perfil obtenido' };

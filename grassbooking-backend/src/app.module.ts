@@ -12,6 +12,8 @@ import { PagosModule } from './modules/pagos/pagos.module';
 import { NotificacionesModule } from './modules/notificaciones/notificaciones.module';
 import { ReportesModule } from './modules/reportes/reportes.module';
 import { ExcepcionesModule } from './modules/excepciones/excepciones.module';
+import { LocalesModule } from './modules/locales/locales.module';
+import { UploadsModule } from './modules/uploads/uploads.module';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { ExcepcionesModule } from './modules/excepciones/excepciones.module';
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     AuthModule,
     UsuariosModule,
+    LocalesModule,
     CanchasModule,
     HorariosModule,
     ReservasModule,
@@ -30,6 +33,7 @@ import { ExcepcionesModule } from './modules/excepciones/excepciones.module';
     NotificacionesModule,
     ReportesModule,
     ExcepcionesModule,
+    UploadsModule,
   ],
 })
 export class AppModule {}

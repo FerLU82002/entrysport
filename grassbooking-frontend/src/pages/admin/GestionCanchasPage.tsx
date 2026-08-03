@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { Sidebar } from '../../components/common/Sidebar';
 import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
@@ -9,7 +10,7 @@ import { canchasService } from '../../services/canchas.service';
 import { Cancha } from '../../types';
 
 export const GestionCanchasPage = () => {
-  const { canchas, isLoading, recargar } = useCanchas(false);
+  const { canchas, isLoading, recargar } = useCanchas('mi-local');
   const [mostrarForm, setMostrarForm] = useState(false);
   const [canchaEditando, setCanchaEditando] = useState<Cancha | undefined>();
   const [guardando, setGuardando] = useState(false);
@@ -47,7 +48,7 @@ export const GestionCanchasPage = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-ink-50">
       <div className="hidden md:block">
         <Sidebar />
       </div>
@@ -56,28 +57,29 @@ export const GestionCanchasPage = () => {
         <div className="flex-1 overflow-y-auto">
         <main className="p-6 max-w-6xl">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">Gestión de canchas</h1>
+            <h1 className="text-xl font-semibold text-ink-900">Espacios deportivos</h1>
             <button
               onClick={() => {
                 setCanchaEditando(undefined);
                 setMostrarForm(true);
               }}
-              className="btn-primary"
+              className="btn-primary flex items-center gap-1.5"
             >
-              + Nueva cancha
+              <Plus size={16} strokeWidth={2} />
+              Nuevo espacio
             </button>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-md mb-4">
               {error}
             </div>
           )}
 
           {mostrarForm && (
             <div className="card mb-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                {canchaEditando ? 'Editar cancha' : 'Nueva cancha'}
+              <h2 className="text-sm font-semibold text-ink-900 mb-4">
+                {canchaEditando ? 'Editar espacio' : 'Nuevo espacio'}
               </h2>
               <CanchaForm
                 cancha={canchaEditando}
@@ -96,7 +98,7 @@ export const GestionCanchasPage = () => {
               <LoadingSpinner size="lg" text="Cargando canchas..." />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {canchas.map((cancha) => (
                 <CanchaCard
                   key={cancha.id}

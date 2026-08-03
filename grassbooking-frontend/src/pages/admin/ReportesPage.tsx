@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Download, ArrowRight, BarChart3, Wallet } from 'lucide-react';
 import { Sidebar } from '../../components/common/Sidebar';
 import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
@@ -118,7 +119,7 @@ export const ReportesPage = () => {
   const hayAlgunDato = resumen || ocupacion.length > 0 || ingresos.length > 0;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-ink-50">
       <div className="hidden md:block">
         <Sidebar />
       </div>
@@ -127,32 +128,30 @@ export const ReportesPage = () => {
         <div className="flex-1 overflow-y-auto">
         <main className="p-6 max-w-6xl">
 
-          {/* Cabecera y filtros */}
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-            <h1 className="text-2xl font-bold text-gray-800">Reportes</h1>
+            <h1 className="text-xl font-semibold text-ink-900">Reportes</h1>
             <button
               onClick={exportarExcel}
               disabled={!hayAlgunDato}
               className="btn-primary disabled:opacity-50 flex items-center gap-2"
             >
-              📥 Exportar a Excel
+              <Download size={15} strokeWidth={1.75} />
+              Exportar a Excel
             </button>
           </div>
 
-          {/* Rangos rápidos */}
           <div className="flex flex-wrap gap-2 mb-4">
             {RANGOS.map((r) => (
               <button
                 key={r.label}
                 onClick={() => aplicarRango(r.desde)}
-                className="px-3 py-1.5 rounded-full text-sm border border-gray-200 bg-white text-gray-600 hover:border-green-500 hover:text-green-700 transition-colors"
+                className="px-3 py-1.5 rounded-md text-sm border border-ink-200 bg-white text-ink-600 hover:border-ink-400 transition-colors"
               >
                 {r.label}
               </button>
             ))}
           </div>
 
-          {/* Rango personalizado */}
           <div className="flex flex-wrap gap-2 items-center mb-8">
             <input
               type="date"
@@ -160,7 +159,7 @@ export const ReportesPage = () => {
               onChange={(e) => setDesde(e.target.value)}
               className="input-field w-auto"
             />
-            <span className="text-gray-400">→</span>
+            <ArrowRight size={14} className="text-ink-300" />
             <input
               type="date"
               value={hasta}
@@ -172,59 +171,56 @@ export const ReportesPage = () => {
             </button>
           </div>
 
-          {/* KPIs de resumen */}
           <div className="mb-8">
             {loadingResumen ? (
               <div className="flex justify-center py-6"><LoadingSpinner text="Cargando resumen..." /></div>
             ) : errorResumen ? (
-              <p className="text-red-500 text-sm">{errorResumen}</p>
+              <p className="text-red-600 text-sm">{errorResumen}</p>
             ) : resumen ? (
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
                   {[
-                    { label: 'Total reservas', valor: resumen.total, color: 'text-gray-800' },
-                    { label: 'Confirmadas', valor: resumen.confirmadas, color: 'text-green-600' },
-                    { label: 'Canceladas', valor: resumen.canceladas, color: 'text-red-500' },
-                    { label: 'Completadas', valor: resumen.completadas, color: 'text-blue-600' },
+                    { label: 'Total reservas', valor: resumen.total },
+                    { label: 'Confirmadas', valor: resumen.confirmadas },
+                    { label: 'Canceladas', valor: resumen.canceladas },
+                    { label: 'Completadas', valor: resumen.completadas },
                   ].map((item) => (
                     <div key={item.label} className="card text-center">
-                      <p className={`text-3xl font-bold ${item.color}`}>{item.valor}</p>
-                      <p className="text-sm text-gray-500 mt-1">{item.label}</p>
+                      <p className="text-2xl font-semibold text-ink-900">{item.valor}</p>
+                      <p className="text-sm text-ink-500 mt-1">{item.label}</p>
                     </div>
                   ))}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="card text-center">
-                    <p className="text-sm text-gray-500 mb-1">Pendientes</p>
-                    <p className="text-2xl font-bold text-orange-500">{resumen.pendientes}</p>
+                    <p className="text-sm text-ink-500 mb-1">Pendientes</p>
+                    <p className="text-xl font-semibold text-ink-900">{resumen.pendientes}</p>
                   </div>
                   <div className="card text-center">
-                    <p className="text-sm text-gray-500 mb-1">Monto total generado</p>
-                    <p className="text-2xl font-bold text-gray-800">S/ {resumen.montoTotalGenerado.toFixed(2)}</p>
+                    <p className="text-sm text-ink-500 mb-1">Monto total generado</p>
+                    <p className="text-xl font-semibold text-ink-900">S/ {resumen.montoTotalGenerado.toFixed(2)}</p>
                   </div>
                   <div className="card text-center">
-                    <p className="text-sm text-gray-500 mb-1">Ingresos cobrados</p>
-                    <p className="text-2xl font-bold text-green-600">S/ {resumen.ingresosCobrados.toFixed(2)}</p>
+                    <p className="text-sm text-ink-500 mb-1">Ingresos cobrados</p>
+                    <p className="text-xl font-semibold text-ink-900">S/ {resumen.ingresosCobrados.toFixed(2)}</p>
                   </div>
                 </div>
               </>
             ) : (
-              <p className="text-gray-400 text-sm text-center py-4">Sin datos en este período</p>
+              <p className="text-ink-400 text-sm text-center py-4">Sin datos en este período</p>
             )}
           </div>
 
-          {/* Gráficos */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Ocupación */}
             <div className="card">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">Ocupación por día</h2>
+              <h2 className="text-sm font-semibold text-ink-900 mb-4">Ocupación por día</h2>
               {loadingOcupacion ? (
                 <div className="flex justify-center py-8"><LoadingSpinner /></div>
               ) : errorOcupacion ? (
-                <p className="text-red-500 text-sm text-center py-8">{errorOcupacion}</p>
+                <p className="text-red-600 text-sm text-center py-8">{errorOcupacion}</p>
               ) : ocupacion.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
-                  <p className="text-3xl mb-2">📊</p>
+                <div className="text-center py-8 text-ink-400">
+                  <BarChart3 className="mx-auto mb-2" size={24} strokeWidth={1.5} />
                   <p className="text-sm">Sin reservas en este período</p>
                 </div>
               ) : (
@@ -232,16 +228,15 @@ export const ReportesPage = () => {
               )}
             </div>
 
-            {/* Ingresos */}
             <div className="card">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">Ingresos por semana</h2>
+              <h2 className="text-sm font-semibold text-ink-900 mb-4">Ingresos por semana</h2>
               {loadingIngresos ? (
                 <div className="flex justify-center py-8"><LoadingSpinner /></div>
               ) : errorIngresos ? (
-                <p className="text-red-500 text-sm text-center py-8">{errorIngresos}</p>
+                <p className="text-red-600 text-sm text-center py-8">{errorIngresos}</p>
               ) : ingresos.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
-                  <p className="text-3xl mb-2">💰</p>
+                <div className="text-center py-8 text-ink-400">
+                  <Wallet className="mx-auto mb-2" size={24} strokeWidth={1.5} />
                   <p className="text-sm">Sin pagos registrados en este período</p>
                   <p className="text-xs mt-1">Registra pagos en "Gestión de reservas"</p>
                 </div>

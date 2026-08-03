@@ -7,6 +7,7 @@ import {
   Body,
   Query,
   UseGuards,
+  Request,
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
@@ -16,6 +17,11 @@ import { UpdateHorarioDto } from './dto/update-horario.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { Usuario } from '../usuarios/entities/usuario.entity';
+
+interface ReqUser extends Request {
+  user: Usuario;
+}
 
 @ApiTags('Horarios')
 @Controller('horarios')
@@ -41,22 +47,23 @@ export class HorariosController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Roles('super_admin', 'admin_local')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Crear horario [ADMIN]' })
-  create(@Body() createDto: CreateHorarioDto) {
-    return this.horariosService.create(createDto);
+  @ApiOperation({ summary: 'Crear horario [SUPER_ADMIN, ADMIN_LOCAL dueño]' })
+  create(@Body() createDto: CreateHorarioDto, @Request() req: ReqUser) {
+    return this.horariosService.create(createDto, req.user);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Roles('super_admin', 'admin_local')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Actualizar horario [ADMIN]' })
+  @ApiOperation({ summary: 'Actualizar horario [SUPER_ADMIN, ADMIN_LOCAL dueño]' })
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateHorarioDto,
+    @Request() req: ReqUser,
   ) {
-    return this.horariosService.update(id, updateDto);
+    return this.horariosService.update(id, updateDto, req.user);
   }
 }

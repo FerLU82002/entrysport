@@ -1,12 +1,19 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { LoadingSpinner } from './LoadingSpinner';
+import { RolUsuario } from '../../types';
 
 interface Props {
-  rol: 'usuario' | 'admin';
+  roles: RolUsuario[];
 }
 
-export const ProtectedRoute = ({ rol }: Props) => {
+const rutaInicioPorRol = (rol?: RolUsuario) => {
+  if (rol === 'super_admin') return '/superadmin';
+  if (rol === 'admin_local') return '/admin';
+  return '/dashboard';
+};
+
+export const ProtectedRoute = ({ roles }: Props) => {
   const { isAuthenticated, isLoading, usuario } = useAuth();
 
   if (isLoading) {
@@ -19,12 +26,8 @@ export const ProtectedRoute = ({ rol }: Props) => {
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
-  if (rol === 'admin' && usuario?.rol !== 'admin') {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  if (rol === 'usuario' && usuario?.rol === 'admin') {
-    return <Navigate to="/admin" replace />;
+  if (!usuario || !roles.includes(usuario.rol)) {
+    return <Navigate to={rutaInicioPorRol(usuario?.rol)} replace />;
   }
 
   return <Outlet />;

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Ban, CheckCircle2, Clock, Lock, X } from 'lucide-react';
 import { Sidebar } from '../../components/common/Sidebar';
 import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
@@ -14,7 +15,7 @@ const DIAS_SEMANA: Record<number, string> = {
 };
 
 export const ExcepcionesPage = () => {
-  const { canchas } = useCanchas(false);
+  const { canchas } = useCanchas('mi-local');
   const [canchaId, setCanchaId] = useState<number | null>(null);
   const [fecha, setFecha] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [excepciones, setExcepciones] = useState<HorarioExcepcion[]>([]);
@@ -118,7 +119,7 @@ export const ExcepcionesPage = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-ink-50">
       <div className="hidden md:block">
         <Sidebar />
       </div>
@@ -126,16 +127,15 @@ export const ExcepcionesPage = () => {
         <Navbar />
         <div className="flex-1 overflow-y-auto">
           <main className="p-6 max-w-4xl">
-            <h1 className="text-2xl font-bold text-gray-800 mb-1">Fechas especiales</h1>
-            <p className="text-sm text-gray-500 mb-6">
+            <h1 className="text-xl font-semibold text-ink-900 mb-1">Fechas especiales</h1>
+            <p className="text-sm text-ink-500 mb-6">
               Bloquea fechas o franjas horarias específicas sin modificar la configuración semanal.
             </p>
 
-            {/* Filtros */}
             <div className="card mb-6">
               <div className="flex flex-wrap gap-4 items-end">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Cancha</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1.5">Cancha</label>
                   <select
                     value={canchaId || ''}
                     onChange={(e) => setCanchaId(Number(e.target.value))}
@@ -147,7 +147,7 @@ export const ExcepcionesPage = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1.5">Fecha</label>
                   <input
                     type="date"
                     value={fecha}
@@ -156,14 +156,14 @@ export const ExcepcionesPage = () => {
                   />
                 </div>
                 <div className="flex-1 min-w-[200px]">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Motivo <span className="text-gray-400 font-normal">(opcional)</span>
+                  <label className="block text-sm font-medium text-ink-700 mb-1.5">
+                    Motivo <span className="text-ink-400 font-normal">(opcional)</span>
                   </label>
                   <input
                     type="text"
                     value={motivo}
                     onChange={(e) => setMotivo(e.target.value)}
-                    placeholder="Ej: Mantenimiento, Feriado, Evento..."
+                    placeholder="Ej: Mantenimiento, feriado, evento..."
                     className="input-field"
                   />
                 </div>
@@ -171,7 +171,7 @@ export const ExcepcionesPage = () => {
             </div>
 
             {error && (
-              <p className="text-red-500 text-sm mb-4">{error}</p>
+              <p className="text-red-600 text-sm mb-4">{error}</p>
             )}
 
             {loading ? (
@@ -180,59 +180,58 @@ export const ExcepcionesPage = () => {
               </div>
             ) : (
               <>
-                {/* Bloqueo del día completo */}
                 <div className="card mb-6">
-                  <h2 className="text-base font-semibold text-gray-800 mb-1">
+                  <h2 className="text-sm font-semibold text-ink-900 mb-1">
                     Bloqueo del día — {diaSemanaLabel()} {fecha}
                   </h2>
-                  <p className="text-xs text-gray-400 mb-4">
+                  <p className="text-xs text-ink-400 mb-4">
                     Bloquea todos los horarios de esta fecha de un solo golpe.
                   </p>
 
                   {bloqueoDia ? (
-                    <div className="flex items-center justify-between bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-                      <div>
-                        <span className="text-red-700 font-medium text-sm">🔴 Día completo bloqueado</span>
+                    <div className="flex items-center justify-between bg-red-50 border border-red-200 rounded-md px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <Ban size={15} strokeWidth={1.75} className="text-red-600 shrink-0" />
+                        <span className="text-red-700 font-medium text-sm">Día completo bloqueado</span>
                         {bloqueoDia.motivo && (
-                          <span className="text-red-600 text-sm ml-2">— {bloqueoDia.motivo}</span>
+                          <span className="text-red-600 text-sm">— {bloqueoDia.motivo}</span>
                         )}
                       </div>
-                      <button
-                        onClick={() => eliminar(bloqueoDia.id)}
-                        className="btn-secondary text-sm shrink-0"
-                      >
+                      <button onClick={() => eliminar(bloqueoDia.id)} className="btn-secondary text-sm shrink-0">
                         Quitar bloqueo
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-between gap-4 bg-green-50 border border-green-200 rounded-lg px-4 py-3">
-                      <p className="text-sm text-green-700">
-                        ✅ Día disponible según horario semanal habitual.
+                    <div className="flex items-center justify-between gap-4 bg-brand-50 border border-brand-200 rounded-md px-4 py-3">
+                      <p className="flex items-center gap-2 text-sm text-brand-800">
+                        <CheckCircle2 size={15} strokeWidth={1.75} className="shrink-0" />
+                        Día disponible según horario semanal habitual.
                       </p>
                       <button
                         onClick={bloquearDia}
                         disabled={guardando === 'dia'}
-                        className="btn-danger text-sm shrink-0 flex items-center gap-2"
+                        className="btn-danger text-sm shrink-0 flex items-center gap-1.5"
                       >
-                        {guardando === 'dia'
-                          ? <><LoadingSpinner size="sm" /> Guardando...</>
-                          : '🔒 Bloquear día completo'}
+                        {guardando === 'dia' ? (
+                          <><LoadingSpinner size="sm" /> Guardando...</>
+                        ) : (
+                          <><Lock size={13} strokeWidth={1.75} /> Bloquear día completo</>
+                        )}
                       </button>
                     </div>
                   )}
                 </div>
 
-                {/* Bloqueos por hora */}
                 {!bloqueoDia && (
                   <div className="card">
-                    <h2 className="text-base font-semibold text-gray-800 mb-1">Horarios del día</h2>
-                    <p className="text-xs text-gray-400 mb-4">
-                      Verde = disponible · Rojo = bloqueado solo en esta fecha. Haz clic para cambiar.
+                    <h2 className="text-sm font-semibold text-ink-900 mb-1">Horarios del día</h2>
+                    <p className="text-xs text-ink-400 mb-4">
+                      Haz clic en un horario para bloquearlo o desbloquearlo solo en esta fecha.
                     </p>
 
                     {horariosDia.length === 0 ? (
-                      <div className="text-center py-8 text-gray-400">
-                        <p className="text-3xl mb-2">🕐</p>
+                      <div className="text-center py-8 text-ink-400">
+                        <Clock className="mx-auto mb-2" size={24} strokeWidth={1.5} />
                         <p className="text-sm">No hay horarios configurados para este día de la semana.</p>
                         <p className="text-xs mt-1">Configúralos en "Horarios".</p>
                       </div>
@@ -247,16 +246,12 @@ export const ExcepcionesPage = () => {
                           return (
                             <div
                               key={slot.id}
-                              className={`rounded-xl border-2 p-3 text-center transition-all ${
-                                exc
-                                  ? 'bg-red-50 border-red-300'
-                                  : 'bg-green-50 border-green-200'
+                              className={`rounded-md border p-3 text-center transition-colors ${
+                                exc ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200'
                               }`}
                             >
-                              <p className="font-semibold text-sm text-gray-800">
-                                {hora}
-                              </p>
-                              <p className="text-xs text-gray-500">{horaFin}</p>
+                              <p className="font-medium text-sm text-ink-900">{hora}</p>
+                              <p className="text-xs text-ink-400">{horaFin}</p>
 
                               {exc?.motivo && (
                                 <p className="text-xs text-red-500 mt-1 truncate" title={exc.motivo}>
@@ -267,17 +262,17 @@ export const ExcepcionesPage = () => {
                               {exc ? (
                                 <button
                                   onClick={() => eliminar(exc.id)}
-                                  className="mt-2 text-xs text-red-600 hover:text-red-800 font-medium"
+                                  className="mt-2 flex items-center justify-center gap-1 w-full text-xs text-red-600 hover:text-red-800 font-medium"
                                 >
-                                  ✕ Quitar bloqueo
+                                  <X size={11} strokeWidth={2} /> Quitar bloqueo
                                 </button>
                               ) : (
                                 <button
                                   onClick={() => bloquearSlot(slot)}
                                   disabled={cargandoSlot}
-                                  className="mt-2 text-xs text-gray-500 hover:text-gray-800 font-medium"
+                                  className="mt-2 flex items-center justify-center gap-1 w-full text-xs text-ink-400 hover:text-ink-700 font-medium"
                                 >
-                                  {cargandoSlot ? '...' : '🔒 Bloquear'}
+                                  {cargandoSlot ? '...' : <><Lock size={11} strokeWidth={1.75} /> Bloquear</>}
                                 </button>
                               )}
                             </div>

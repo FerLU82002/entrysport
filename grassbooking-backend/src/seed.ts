@@ -24,56 +24,92 @@ async function seed() {
   await AppDataSource.initialize();
   console.log('Conectado a la base de datos');
 
-  const adminHash = await bcrypt.hash('Admin123!', 12);
+  const superAdminHash = await bcrypt.hash('SuperAdmin123!', 12);
+  const adminLocalHash = await bcrypt.hash('AdminLocal123!', 12);
   const demoHash = await bcrypt.hash('Demo123!', 12);
 
   await AppDataSource.query(`
     INSERT INTO usuarios (nombre, email, telefono, password_hash, rol)
     VALUES
-      ('Administrador Grass Bambino', 'admin@grassbambino.com', '062123456', $1, 'admin'),
+      ('Super Administrador', 'superadmin@grassbooking.com', '062123456', $1, 'super_admin'),
       ('Usuario Demo', 'usuario@demo.com', '987654321', $2, 'usuario')
     ON CONFLICT (email) DO NOTHING
-  `, [adminHash, demoHash]);
+  `, [superAdminHash, demoHash]);
 
-  console.log('Usuarios creados');
+  console.log('Usuarios base creados');
 
   await AppDataSource.query(`
-    INSERT INTO canchas (nombre, tipo_superficie, precio_hora, estado, descripcion)
+    INSERT INTO locales (nombre, descripcion, direccion, telefono, email, estado)
     VALUES (
-      'Cancha Grass Bambino',
-      'Césped sintético',
-      50.00,
-      'activa',
-      'Cancha de césped sintético profesional con iluminación LED, vestuarios y estacionamiento'
+      'Complejo Deportivo Grass Bambino',
+      'Complejo con múltiples espacios deportivos: fútbol, pádel y vóley',
+      'Av. Principal 123, Lima',
+      '062123456',
+      'contacto@grassbambino.com',
+      'activo'
     )
     ON CONFLICT DO NOTHING
   `);
 
-  console.log('Cancha creada');
-
-  const canchaResult = await AppDataSource.query(
-    `SELECT id FROM canchas WHERE nombre = 'Cancha Grass Bambino' LIMIT 1`
+  const localResult = await AppDataSource.query(
+    `SELECT id FROM locales WHERE nombre = 'Complejo Deportivo Grass Bambino' LIMIT 1`,
   );
-  const canchaId = canchaResult[0]?.id;
+  const localId = localResult[0]?.id;
 
-  if (!canchaId) {
-    console.error('No se pudo obtener el ID de la cancha');
+  if (!localId) {
+    console.error('No se pudo obtener el ID del local');
     process.exit(1);
   }
 
+  await AppDataSource.query(
+    `INSERT INTO configuraciones_pago (id_local) VALUES ($1) ON CONFLICT DO NOTHING`,
+    [localId],
+  );
+
+  await AppDataSource.query(
+    `
+    INSERT INTO usuarios (nombre, email, telefono, password_hash, rol, id_local)
+    VALUES ('Administrador Grass Bambino', 'admin@grassbambino.com', '062123456', $1, 'admin_local', $2)
+    ON CONFLICT (email) DO NOTHING
+  `,
+    [adminLocalHash, localId],
+  );
+
+  console.log('Local y administrador de local creados');
+
+  await AppDataSource.query(
+    `
+    INSERT INTO canchas (id_local, nombre, deporte, tipo_superficie, precio_hora_dia, precio_hora_noche, estado, descripcion)
+    VALUES
+      ($1, 'Cancha 1 - Fútbol 7', 'Fútbol', 'Césped sintético', 50.00, 70.00, 'activa', 'Cancha de césped sintético profesional con iluminación LED, vestuarios y estacionamiento'),
+      ($1, 'Cancha 2 - Pádel', 'Pádel', 'Cristal', 40.00, 55.00, 'activa', 'Cancha de pádel techada con cristal panorámico')
+    ON CONFLICT DO NOTHING
+  `,
+    [localId],
+  );
+
+  console.log('Canchas creadas');
+
+  const canchasResult = await AppDataSource.query(
+    `SELECT id FROM canchas WHERE id_local = $1`,
+    [localId],
+  );
+
   const horariosValues: string[] = [];
-  const horariosParams: string[] = [];
+  const horariosParams: (string | number)[] = [];
   let paramIdx = 1;
 
-  for (const dia of DIAS) {
-    for (let hora = 8; hora < 23; hora++) {
-      const horaInicio = `${String(hora).padStart(2, '0')}:00`;
-      const horaFin = `${String(hora + 1).padStart(2, '0')}:00`;
+  for (const { id: canchaId } of canchasResult) {
+    for (const dia of DIAS) {
+      for (let hora = 8; hora < 23; hora++) {
+        const horaInicio = `${String(hora).padStart(2, '0')}:00`;
+        const horaFin = `${String(hora + 1).padStart(2, '0')}:00`;
 
-      horariosValues.push(
-        `($${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++})`
-      );
-      horariosParams.push(String(canchaId), dia, horaInicio, horaFin);
+        horariosValues.push(
+          `($${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++})`,
+        );
+        horariosParams.push(canchaId, dia, horaInicio, horaFin);
+      }
     }
   }
 
@@ -84,11 +120,12 @@ async function seed() {
     horariosParams,
   );
 
-  console.log(`${DIAS.length * 15} horarios creados (15 por día × 7 días)`);
+  console.log(`Horarios creados para ${canchasResult.length} cancha(s)`);
   console.log('\n=== SEED COMPLETADO ===');
-  console.log('Admin: admin@grassbambino.com / Admin123!');
-  console.log('Demo:  usuario@demo.com / Demo123!');
-  console.log('Cancha ID:', canchaId);
+  console.log('Super admin: superadmin@grassbooking.com / SuperAdmin123!');
+  console.log('Admin local: admin@grassbambino.com / AdminLocal123!');
+  console.log('Demo:        usuario@demo.com / Demo123!');
+  console.log('Local ID:', localId);
 
   await AppDataSource.destroy();
 }

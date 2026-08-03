@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { X, ClipboardList } from 'lucide-react';
 import { Sidebar } from '../../components/common/Sidebar';
 import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
@@ -61,10 +62,8 @@ export const ReservasAdminPage = () => {
     setErrorModal('');
 
     try {
-      // 1. Actualizar estado de la reserva
       await reservasService.cambiarEstado(modalReserva.id, nuevoEstado);
 
-      // 2. Actualizar estado del pago (si la reserva tiene un pago asociado)
       if (modalReserva.pago?.id) {
         await pagosService.update(modalReserva.pago.id, estadoPago, metodoPago);
       }
@@ -79,7 +78,7 @@ export const ReservasAdminPage = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-ink-50">
       <div className="hidden md:block">
         <Sidebar />
       </div>
@@ -87,9 +86,8 @@ export const ReservasAdminPage = () => {
         <Navbar />
         <div className="flex-1 overflow-y-auto">
         <main className="p-6 max-w-5xl">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Gestión de reservas</h1>
+          <h1 className="text-xl font-semibold text-ink-900 mb-6">Gestión de reservas</h1>
 
-          {/* Filtros */}
           <div className="flex flex-wrap gap-3 mb-4">
             <input
               type="date"
@@ -104,15 +102,15 @@ export const ReservasAdminPage = () => {
             )}
           </div>
 
-          <div className="flex gap-2 flex-wrap mb-6">
+          <div className="flex gap-1.5 flex-wrap mb-6">
             {ESTADOS_RESERVA.map((e) => (
               <button
                 key={e.value}
                 onClick={() => setFiltroEstado(e.value)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                   filtroEstado === e.value
-                    ? 'bg-blue-800 text-white'
-                    : 'bg-white text-gray-600 border border-gray-200 hover:border-blue-400'
+                    ? 'bg-ink-900 text-white'
+                    : 'bg-white text-ink-600 border border-ink-200 hover:border-ink-300'
                 }`}
               >
                 {e.label}
@@ -125,9 +123,9 @@ export const ReservasAdminPage = () => {
               <LoadingSpinner size="lg" text="Cargando reservas..." />
             </div>
           ) : reservas.length === 0 ? (
-            <div className="card text-center py-12 text-gray-400">
-              <p className="text-4xl mb-3">📋</p>
-              <p>No hay reservas con este filtro</p>
+            <div className="card text-center py-12 text-ink-400">
+              <ClipboardList className="mx-auto mb-3" size={28} strokeWidth={1.5} />
+              <p className="text-sm">No hay reservas con este filtro</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -145,49 +143,42 @@ export const ReservasAdminPage = () => {
         </div>
       </div>
 
-      {/* Modal de gestión */}
       {modalReserva && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
+        <div className="fixed inset-0 bg-ink-900/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg border border-ink-100">
 
-            {/* Cabecera */}
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-semibold text-gray-800">Gestionar reserva</h3>
-              <button
-                onClick={() => setModalReserva(null)}
-                className="text-gray-400 hover:text-gray-600 text-xl leading-none"
-              >
-                ✕
+              <h3 className="text-base font-semibold text-ink-900">Gestionar reserva</h3>
+              <button onClick={() => setModalReserva(null)} className="text-ink-400 hover:text-ink-700">
+                <X size={18} strokeWidth={1.75} />
               </button>
             </div>
 
-            {/* Info de la reserva */}
-            <div className="bg-gray-50 rounded-lg p-3 mb-5 text-sm space-y-1">
-              <p className="text-gray-500">
-                Código: <span className="font-mono font-medium text-gray-700">
+            <div className="bg-ink-50 rounded-md p-3 mb-5 text-sm space-y-1">
+              <p className="text-ink-500">
+                Código: <span className="font-mono font-medium text-ink-700">
                   #{modalReserva.codigoReserva?.slice(0, 8).toUpperCase()}
                 </span>
               </p>
-              <p className="text-gray-500">
-                Cliente: <span className="font-medium text-gray-700">
+              <p className="text-ink-500">
+                Cliente: <span className="font-medium text-ink-700">
                   {modalReserva.usuario?.nombre ?? '—'}
                 </span>
               </p>
-              <p className="text-gray-500">
-                Fecha: <span className="font-medium text-gray-700">
-                  {modalReserva.fechaReserva} • {modalReserva.horaInicio.substring(0, 5)}–{modalReserva.horaFin.substring(0, 5)}
+              <p className="text-ink-500">
+                Fecha: <span className="font-medium text-ink-700">
+                  {modalReserva.fechaReserva} · {modalReserva.horaInicio.substring(0, 5)}–{modalReserva.horaFin.substring(0, 5)}
                 </span>
               </p>
-              <p className="text-gray-500">
-                Monto: <span className="font-bold text-green-600">
+              <p className="text-ink-500">
+                Monto: <span className="font-semibold text-ink-900">
                   S/ {Number(modalReserva.montoTotal).toFixed(2)}
                 </span>
               </p>
             </div>
 
-            {/* Estado de la reserva */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-ink-700 mb-1.5">
                 Estado de la reserva
               </label>
               <select
@@ -203,12 +194,10 @@ export const ReservasAdminPage = () => {
               </select>
             </div>
 
-            {/* Separador */}
-            <div className="border-t border-gray-100 my-4" />
+            <div className="border-t border-ink-100 my-4" />
 
-            {/* Estado del pago */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-ink-700 mb-1.5">
                 Estado del pago
               </label>
               <div className="flex gap-2">
@@ -217,26 +206,21 @@ export const ReservasAdminPage = () => {
                     key={ep}
                     type="button"
                     onClick={() => setEstadoPago(ep)}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                    className={`flex-1 py-2 rounded-md text-sm font-medium border transition-colors ${
                       estadoPago === ep
-                        ? ep === 'pagado'
-                          ? 'bg-green-600 text-white border-green-600'
-                          : ep === 'reembolsado'
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-orange-500 text-white border-orange-500'
-                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                        ? 'bg-ink-900 text-white border-ink-900'
+                        : 'bg-white text-ink-600 border-ink-200 hover:border-ink-300'
                     }`}
                   >
-                    {ep === 'pendiente' ? 'Pendiente' : ep === 'pagado' ? '✓ Pagado' : '↩ Reembolsado'}
+                    {ep === 'pendiente' ? 'Pendiente' : ep === 'pagado' ? 'Pagado' : 'Reembolsado'}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Método de pago (solo si está pagado) */}
             {estadoPago === 'pagado' && (
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-ink-700 mb-1.5">
                   Método de pago
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -245,10 +229,10 @@ export const ReservasAdminPage = () => {
                       key={m}
                       type="button"
                       onClick={() => setMetodoPago(m)}
-                      className={`px-3 py-1.5 rounded-lg text-sm capitalize border transition-colors ${
+                      className={`px-3 py-1.5 rounded-md text-sm capitalize border transition-colors ${
                         metodoPago === m
-                          ? 'bg-gray-800 text-white border-gray-800'
-                          : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                          ? 'bg-ink-900 text-white border-ink-900'
+                          : 'bg-white text-ink-600 border-ink-200 hover:border-ink-300'
                       }`}
                     >
                       {m}
@@ -259,10 +243,9 @@ export const ReservasAdminPage = () => {
             )}
 
             {errorModal && (
-              <p className="text-red-500 text-sm mb-3">{errorModal}</p>
+              <p className="text-red-600 text-sm mb-3">{errorModal}</p>
             )}
 
-            {/* Acciones */}
             <div className="flex gap-3 mt-2">
               <button
                 onClick={handleGuardar}

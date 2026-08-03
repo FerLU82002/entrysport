@@ -35,7 +35,12 @@ export class ReservasService {
     return { data: reservas, message: 'Reservas obtenidas' };
   }
 
-  async findTodas(filtros?: { fecha?: string; estado?: string; idCancha?: number }) {
+  async findTodas(filtros?: {
+    fecha?: string;
+    estado?: string;
+    idCancha?: number;
+    idLocal?: number;
+  }) {
     const query = this.reservasRepository
       .createQueryBuilder('reserva')
       .leftJoinAndSelect('reserva.usuario', 'usuario')
@@ -53,18 +58,28 @@ export class ReservasService {
     if (filtros?.idCancha) {
       query.andWhere('reserva.idCancha = :idCancha', { idCancha: filtros.idCancha });
     }
+    if (filtros?.idLocal) {
+      query.andWhere('cancha.idLocal = :idLocal', { idLocal: filtros.idLocal });
+    }
 
     const reservas = await query.getMany();
     return { data: reservas, message: 'Reservas obtenidas' };
   }
 
-  async findHoy() {
+  async findHoy(idLocal?: number) {
     const hoy = new Date().toISOString().split('T')[0];
-    const reservas = await this.reservasRepository.find({
-      where: { fechaReserva: hoy },
-      relations: ['usuario', 'cancha'],
-      order: { horaInicio: 'ASC' },
-    });
+    const query = this.reservasRepository
+      .createQueryBuilder('reserva')
+      .leftJoinAndSelect('reserva.usuario', 'usuario')
+      .leftJoinAndSelect('reserva.cancha', 'cancha')
+      .where('reserva.fechaReserva = :hoy', { hoy })
+      .orderBy('reserva.horaInicio', 'ASC');
+
+    if (idLocal) {
+      query.andWhere('cancha.idLocal = :idLocal', { idLocal });
+    }
+
+    const reservas = await query.getMany();
     return { data: reservas, message: 'Reservas del día obtenidas' };
   }
 
@@ -131,7 +146,10 @@ export class ReservasService {
       );
     }
 
-    const montoTotal = Number(cancha.precioHora);
+    const esNocturno = createDto.horaInicio >= cancha.horaInicioNoche.substring(0, 5);
+    const montoTotal = esNocturno
+      ? Number(cancha.precioHoraNoche)
+      : Number(cancha.precioHoraDia);
 
     const reserva = this.reservasRepository.create({
       idUsuario: userId,
@@ -148,6 +166,7 @@ export class ReservasService {
 
     const pago = this.pagosRepository.create({
       idReserva: reservaGuardada.id,
+      idLocal: cancha.idLocal,
       monto: montoTotal,
       estadoPago: 'pendiente',
     });
@@ -160,6 +179,8 @@ export class ReservasService {
       mensaje: `Tu reserva para el ${createDto.fechaReserva} a las ${createDto.horaInicio} ha sido recibida. Código: ${reservaGuardada.codigoReserva}`,
     });
     await this.notificacionesRepository.save(notificacion);
+
+    reservaGuardada.cancha = cancha;
 
     return { data: reservaGuardada, message: 'Reserva creada exitosamente' };
   }
@@ -204,11 +225,18 @@ export class ReservasService {
     return { data: reserva, message: 'Reserva cancelada exitosamente' };
   }
 
-  async cambiarEstado(id: number, updateDto: UpdateEstadoReservaDto) {
-    const reserva = await this.reservasRepository.findOne({ where: { id } });
+  async cambiarEstado(id: number, updateDto: UpdateEstadoReservaDto, idLocal?: number) {
+    const reserva = await this.reservasRepository.findOne({
+      where: { id },
+      relations: ['cancha'],
+    });
 
     if (!reserva) {
       throw new NotFoundException(`Reserva #${id} no encontrada`);
+    }
+
+    if (idLocal && reserva.cancha.idLocal !== idLocal) {
+      throw new ForbiddenException('No tienes permisos sobre esta reserva');
     }
 
     reserva.estado = updateDto.estado;

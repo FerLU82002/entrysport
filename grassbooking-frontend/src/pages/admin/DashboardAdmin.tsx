@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import type { LucideIcon } from 'lucide-react';
+import { CalendarDays, BarChart3, Wallet, LandPlot, ClipboardList, TrendingUp } from 'lucide-react';
 import { Sidebar } from '../../components/common/Sidebar';
 import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { ReservaCard } from '../../components/reservas/ReservaCard';
 import { reservasService } from '../../services/reservas.service';
 import { reportesService } from '../../services/reportes.service';
+import { canchasService } from '../../services/canchas.service';
 import { Reserva, ResumenReportes } from '../../types';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 
@@ -13,19 +16,20 @@ interface KpiCardProps {
   titulo: string;
   valor: string | number;
   subtitulo?: string;
-  color: string;
-  icon: string;
+  icon: LucideIcon;
 }
 
-const KpiCard = ({ titulo, valor, subtitulo, color, icon }: KpiCardProps) => (
-  <div className={`card border-l-4 ${color}`}>
+const KpiCard = ({ titulo, valor, subtitulo, icon: Icon }: KpiCardProps) => (
+  <div className="card">
     <div className="flex items-start justify-between">
       <div>
-        <p className="text-sm text-gray-500 font-medium">{titulo}</p>
-        <p className="text-3xl font-bold text-gray-800 mt-1">{valor}</p>
-        {subtitulo && <p className="text-xs text-gray-400 mt-1">{subtitulo}</p>}
+        <p className="text-sm text-ink-500 font-medium">{titulo}</p>
+        <p className="text-2xl font-semibold text-ink-900 mt-1">{valor}</p>
+        {subtitulo && <p className="text-xs text-ink-400 mt-1">{subtitulo}</p>}
       </div>
-      <span className="text-3xl">{icon}</span>
+      <span className="flex items-center justify-center w-9 h-9 rounded-md bg-ink-100 text-ink-500 shrink-0">
+        <Icon size={17} strokeWidth={1.75} />
+      </span>
     </div>
   </div>
 );
@@ -33,6 +37,7 @@ const KpiCard = ({ titulo, valor, subtitulo, color, icon }: KpiCardProps) => (
 export const DashboardAdmin = () => {
   const [reservasHoy, setReservasHoy] = useState<Reserva[]>([]);
   const [resumen, setResumen] = useState<ResumenReportes | null>(null);
+  const [totalSlots, setTotalSlots] = useState(15);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -42,20 +47,23 @@ export const DashboardAdmin = () => {
     Promise.all([
       reservasService.getHoy(),
       reportesService.getResumen(inicioMes, finMes),
+      canchasService.getMisCanchas(),
     ])
-      .then(([hoyRes, resumenRes]) => {
+      .then(([hoyRes, resumenRes, canchasRes]) => {
         setReservasHoy(hoyRes.data);
         setResumen(resumenRes.data);
+        const activas = canchasRes.data.filter((c) => c.estado === 'activa').length;
+        setTotalSlots(Math.max(activas, 1) * 15);
       })
       .catch(() => {})
       .finally(() => setIsLoading(false));
   }, []);
 
   const reservasActivas = reservasHoy.filter((r) => r.estado !== 'cancelada');
-  const porcentajeOcupacion = Math.round((reservasActivas.length / 15) * 100);
+  const porcentajeOcupacion = Math.round((reservasActivas.length / totalSlots) * 100);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-ink-50">
       <div className="hidden md:block">
         <Sidebar />
       </div>
@@ -63,7 +71,7 @@ export const DashboardAdmin = () => {
         <Navbar />
         <div className="flex-1 overflow-y-auto">
         <main className="p-6 max-w-6xl">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
+          <h1 className="text-xl font-semibold text-ink-900 mb-6">Dashboard</h1>
 
           {isLoading ? (
             <div className="flex justify-center py-16">
@@ -75,57 +83,65 @@ export const DashboardAdmin = () => {
                 <KpiCard
                   titulo="Reservas hoy"
                   valor={reservasActivas.length}
-                  subtitulo={`de 15 slots disponibles`}
-                  color="border-green-500"
-                  icon="📅"
+                  subtitulo={`de ${totalSlots} slots disponibles`}
+                  icon={CalendarDays}
                 />
                 <KpiCard
                   titulo="Ocupación hoy"
                   valor={`${porcentajeOcupacion}%`}
                   subtitulo="del horario diario"
-                  color="border-blue-500"
-                  icon="📊"
+                  icon={BarChart3}
                 />
                 <KpiCard
                   titulo="Ingresos del mes"
                   valor={`S/ ${resumen?.montoTotalGenerado?.toFixed(0) || 0}`}
                   subtitulo="reservas generadas"
-                  color="border-orange-500"
-                  icon="💰"
+                  icon={Wallet}
                 />
                 <KpiCard
                   titulo="Total este mes"
                   valor={resumen?.total || 0}
                   subtitulo={`${resumen?.canceladas || 0} canceladas`}
-                  color="border-purple-500"
-                  icon="🏟️"
+                  icon={LandPlot}
                 />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-                <Link to="/admin/reservas" className="card text-center hover:shadow-md transition-shadow cursor-pointer group">
-                  <span className="text-3xl group-hover:scale-110 transition-transform inline-block">📋</span>
-                  <p className="font-medium text-gray-700 mt-2">Gestionar Reservas</p>
-                  <p className="text-xs text-gray-400 mt-1">Ver y aprobar reservas</p>
+                <Link to="/admin/reservas" className="card hover:border-ink-300 transition-colors group flex items-center gap-3">
+                  <span className="flex items-center justify-center w-10 h-10 rounded-md bg-ink-100 text-ink-500 shrink-0">
+                    <ClipboardList size={18} strokeWidth={1.75} />
+                  </span>
+                  <div>
+                    <p className="font-medium text-ink-800 text-sm">Gestionar reservas</p>
+                    <p className="text-xs text-ink-400">Ver y aprobar reservas</p>
+                  </div>
                 </Link>
-                <Link to="/admin/canchas" className="card text-center hover:shadow-md transition-shadow cursor-pointer group">
-                  <span className="text-3xl group-hover:scale-110 transition-transform inline-block">⚽</span>
-                  <p className="font-medium text-gray-700 mt-2">Gestionar Canchas</p>
-                  <p className="text-xs text-gray-400 mt-1">CRUD de canchas</p>
+                <Link to="/admin/canchas" className="card hover:border-ink-300 transition-colors group flex items-center gap-3">
+                  <span className="flex items-center justify-center w-10 h-10 rounded-md bg-ink-100 text-ink-500 shrink-0">
+                    <LandPlot size={18} strokeWidth={1.75} />
+                  </span>
+                  <div>
+                    <p className="font-medium text-ink-800 text-sm">Espacios deportivos</p>
+                    <p className="text-xs text-ink-400">Gestiona tus canchas</p>
+                  </div>
                 </Link>
-                <Link to="/admin/reportes" className="card text-center hover:shadow-md transition-shadow cursor-pointer group">
-                  <span className="text-3xl group-hover:scale-110 transition-transform inline-block">📈</span>
-                  <p className="font-medium text-gray-700 mt-2">Ver Reportes</p>
-                  <p className="text-xs text-gray-400 mt-1">Ingresos y ocupación</p>
+                <Link to="/admin/reportes" className="card hover:border-ink-300 transition-colors group flex items-center gap-3">
+                  <span className="flex items-center justify-center w-10 h-10 rounded-md bg-ink-100 text-ink-500 shrink-0">
+                    <TrendingUp size={18} strokeWidth={1.75} />
+                  </span>
+                  <div>
+                    <p className="font-medium text-ink-800 text-sm">Ver reportes</p>
+                    <p className="text-xs text-ink-400">Ingresos y ocupación</p>
+                  </div>
                 </Link>
               </div>
 
               <div className="card">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                <h2 className="text-sm font-semibold text-ink-900 mb-4">
                   Agenda del día — {format(new Date(), 'dd/MM/yyyy')}
                 </h2>
                 {reservasHoy.length === 0 ? (
-                  <p className="text-gray-400 text-center py-6">No hay reservas para hoy</p>
+                  <p className="text-ink-400 text-center py-6 text-sm">No hay reservas para hoy</p>
                 ) : (
                   <div className="space-y-3">
                     {reservasHoy.map((r) => (

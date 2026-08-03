@@ -10,6 +10,13 @@ grassbooking-frontend/.env
 dist/
 grassbooking-backend/dist/
 
+# Imágenes subidas por los usuarios (almacenamiento local de desarrollo)
+grassbooking-backend/uploads/
+
+# Reportes de cobertura de tests
+coverage/
+grassbooking-backend/coverage/
+
 # Logs
 *.log
 npm-debug.log*

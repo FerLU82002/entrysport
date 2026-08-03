@@ -19,7 +19,7 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 
 interface ReqUser extends Request {
-  user: { id: number; rol: string };
+  user: { id: number; rol: string; idLocal: number | null };
 }
 
 @ApiTags('Reservas')
@@ -37,25 +37,28 @@ export class ReservasController {
 
   @Get('todas')
   @UseGuards(RolesGuard)
-  @Roles('admin')
-  @ApiOperation({ summary: 'Todas las reservas [ADMIN]' })
+  @Roles('super_admin', 'admin_local')
+  @ApiOperation({ summary: 'Todas las reservas [SUPER_ADMIN, ADMIN_LOCAL]' })
   @ApiQuery({ name: 'fecha', required: false })
   @ApiQuery({ name: 'estado', required: false })
   @ApiQuery({ name: 'id_cancha', required: false, type: Number })
   findTodas(
+    @Request() req: ReqUser,
     @Query('fecha') fecha?: string,
     @Query('estado') estado?: string,
     @Query('id_cancha') idCancha?: number,
   ) {
-    return this.reservasService.findTodas({ fecha, estado, idCancha });
+    const idLocal = req.user.rol === 'admin_local' ? req.user.idLocal ?? undefined : undefined;
+    return this.reservasService.findTodas({ fecha, estado, idCancha, idLocal });
   }
 
   @Get('hoy')
   @UseGuards(RolesGuard)
-  @Roles('admin')
-  @ApiOperation({ summary: 'Reservas del día [ADMIN]' })
-  findHoy() {
-    return this.reservasService.findHoy();
+  @Roles('super_admin', 'admin_local')
+  @ApiOperation({ summary: 'Reservas del día [SUPER_ADMIN, ADMIN_LOCAL]' })
+  findHoy(@Request() req: ReqUser) {
+    const idLocal = req.user.rol === 'admin_local' ? req.user.idLocal ?? undefined : undefined;
+    return this.reservasService.findHoy(idLocal);
   }
 
   @Get(':id')
@@ -78,12 +81,14 @@ export class ReservasController {
 
   @Patch(':id/estado')
   @UseGuards(RolesGuard)
-  @Roles('admin')
-  @ApiOperation({ summary: 'Cambiar estado de reserva [ADMIN]' })
+  @Roles('super_admin', 'admin_local')
+  @ApiOperation({ summary: 'Cambiar estado de reserva [SUPER_ADMIN, ADMIN_LOCAL]' })
   cambiarEstado(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateEstadoReservaDto,
+    @Request() req: ReqUser,
   ) {
-    return this.reservasService.cambiarEstado(id, updateDto);
+    const idLocal = req.user.rol === 'admin_local' ? req.user.idLocal ?? undefined : undefined;
+    return this.reservasService.cambiarEstado(id, updateDto, idLocal);
   }
 }

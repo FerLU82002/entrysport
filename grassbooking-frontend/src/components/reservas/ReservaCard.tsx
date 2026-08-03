@@ -1,3 +1,4 @@
+import { User, CalendarDays, Clock, CreditCard } from 'lucide-react';
 import { Reserva, ESTADO_COLORES, ESTADO_LABELS } from '../../types';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { format, parseISO, differenceInHours } from 'date-fns';
@@ -9,6 +10,7 @@ interface Props {
   cancelando?: boolean;
   showUsuario?: boolean;
   onCambiarEstado?: (reserva: Reserva) => void;
+  onPagar?: (reserva: Reserva) => void;
 }
 
 export const ReservaCard = ({
@@ -17,6 +19,7 @@ export const ReservaCard = ({
   cancelando,
   showUsuario,
   onCambiarEstado,
+  onPagar,
 }: Props) => {
   // PostgreSQL devuelve TIME como "HH:MM:SS" — tomar solo "HH:MM"
   const horaInicioLimpia = reserva.horaInicio.substring(0, 5);
@@ -39,47 +42,49 @@ export const ReservaCard = ({
     <div className="card">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${ESTADO_COLORES[reserva.estado]}`}>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className={`badge ${ESTADO_COLORES[reserva.estado]}`}>
               {ESTADO_LABELS[reserva.estado]}
             </span>
-            <span className="text-xs text-gray-400 font-mono">
+            <span className="text-xs text-ink-400 font-mono">
               #{reserva.codigoReserva?.slice(0, 8).toUpperCase()}
             </span>
           </div>
 
-          <h3 className="font-semibold text-gray-800">
+          <h3 className="font-medium text-ink-900">
             {reserva.cancha?.nombre || `Cancha #${reserva.idCancha}`}
           </h3>
 
           {showUsuario && reserva.usuario && (
-            <p className="text-sm text-gray-500">
-              👤 {reserva.usuario.nombre} • {reserva.usuario.telefono}
+            <p className="flex items-center gap-1.5 text-sm text-ink-500">
+              <User size={13} strokeWidth={1.75} />
+              {reserva.usuario.nombre} · {reserva.usuario.telefono}
             </p>
           )}
 
-          <p className="text-sm text-gray-600 mt-1">
-            📅{' '}
+          <p className="flex items-center gap-1.5 text-sm text-ink-600 mt-1">
+            <CalendarDays size={13} strokeWidth={1.75} className="text-ink-400" />
             {format(parseISO(reserva.fechaReserva), "EEEE d 'de' MMMM", { locale: es })}
           </p>
-          <p className="text-sm text-gray-600">
-            🕐 {hora12}:00 {ampm} – {horaFin12}:00 {ampmFin}
+          <p className="flex items-center gap-1.5 text-sm text-ink-600">
+            <Clock size={13} strokeWidth={1.75} className="text-ink-400" />
+            {hora12}:00 {ampm} – {horaFin12}:00 {ampmFin}
           </p>
           {reserva.notas && (
-            <p className="text-xs text-gray-400 mt-1 italic">"{reserva.notas}"</p>
+            <p className="text-xs text-ink-400 mt-1 italic">"{reserva.notas}"</p>
           )}
         </div>
 
         <div className="text-right">
-          <p className="text-green-600 font-bold text-lg">
+          <p className="text-ink-900 font-semibold">
             S/ {Number(reserva.montoTotal).toFixed(2)}
           </p>
           {reserva.pago && (
             <span
-              className={`text-xs px-2 py-0.5 rounded-full ${
+              className={`badge mt-1 ${
                 reserva.pago.estadoPago === 'pagado'
-                  ? 'bg-green-100 text-green-600'
-                  : 'bg-orange-100 text-orange-600'
+                  ? 'bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-200'
+                  : 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200'
               }`}
             >
               {reserva.pago.estadoPago === 'pagado' ? 'Pagado' : 'Pendiente pago'}
@@ -89,6 +94,12 @@ export const ReservaCard = ({
       </div>
 
       <div className="flex gap-2 mt-4 flex-wrap">
+        {onPagar && reserva.pago?.estadoPago === 'pendiente' && reserva.estado !== 'cancelada' && (
+          <button onClick={() => onPagar(reserva)} className="btn-primary text-sm py-1.5 px-3 flex items-center gap-1.5">
+            <CreditCard size={14} strokeWidth={1.75} />
+            Pagar ahora
+          </button>
+        )}
         {onCancelar && puedesCancelar && (
           <button
             onClick={() => onCancelar(reserva.id)}
