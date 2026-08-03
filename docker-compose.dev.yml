@@ -1,0 +1,27 @@
+# Postgres para desarrollo local (no producción).
+# Uso:
+#   docker compose -f docker-compose.dev.yml up -d
+#   cd grassbooking-backend && npm run seed
+#
+# El backend sigue corriendo en el host (npm run start:dev) y se conecta
+# a localhost:5432, igual que con una instalación nativa de Postgres.
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: GrassBambino2024
+      POSTGRES_DB: grassbooking
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_dev_data:
