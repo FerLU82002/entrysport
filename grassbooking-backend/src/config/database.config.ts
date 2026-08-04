@@ -9,7 +9,7 @@ export const getDatabaseConfig = (
   port: configService.get<number>('DB_PORT', 5432),
   username: configService.get<string>('DB_USERNAME', 'postgres'),
   password: configService.get<string>('DB_PASSWORD', ''),
-  database: configService.get<string>('DB_NAME', 'grassbooking'),
+  database: configService.get<string>('DB_NAME', 'chocolaterospe'),
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   synchronize: configService.get<string>('NODE_ENV') === 'development',
   logging: configService.get<string>('NODE_ENV') === 'development',

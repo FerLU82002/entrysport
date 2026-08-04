@@ -46,10 +46,10 @@ export const LoginPage = () => {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <span className="inline-flex items-center justify-center w-9 h-9 rounded-md bg-ink-900 text-white text-base font-semibold mb-4">
-            G
+            C
           </span>
           <h1 className="text-xl font-semibold text-ink-900">Inicia sesión</h1>
-          <p className="text-ink-500 text-sm mt-1">Entra a tu cuenta de GrassBooking</p>
+          <p className="text-ink-500 text-sm mt-1">Entra a tu cuenta de Chocolaterospe</p>
         </div>
 
         <div className="bg-white rounded-lg border border-ink-100 shadow-card p-7">
@@ -99,8 +99,8 @@ export const LoginPage = () => {
 
         <div className="mt-4 p-3.5 rounded-md border border-ink-100 bg-white text-xs text-ink-500 space-y-0.5">
           <p className="font-medium text-ink-700 mb-1">Cuentas de prueba</p>
-          <p>Super admin — superadmin@grassbooking.com / SuperAdmin123!</p>
-          <p>Admin de local — admin@grassbambino.com / AdminLocal123!</p>
+          <p>Super admin — superadmin@chocolaterospe.com / SuperAdmin123!</p>
+          <p>Admin de local — admin@chocolaterospe.com / AdminLocal123!</p>
           <p>Demo — usuario@demo.com / Demo123!</p>
         </div>
       </div>

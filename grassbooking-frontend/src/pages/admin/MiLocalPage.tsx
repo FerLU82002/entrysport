@@ -20,7 +20,6 @@ const schema = z.object({
   direccion: z.string().optional(),
   telefono: z.string().min(6, 'Ingresa un número de contacto válido').max(20),
   email: z.string().email('Email inválido').optional().or(z.literal('')),
-  imagenUrl: z.string().url('URL inválida').optional().or(z.literal('')),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -29,6 +28,7 @@ export const MiLocalPage = () => {
   const { usuario } = useAuth();
   const [local, setLocal] = useState<Local | null>(null);
   const [fotos, setFotos] = useState<string[]>([]);
+  const [imagenPortada, setImagenPortada] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
@@ -41,7 +41,7 @@ export const MiLocalPage = () => {
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { nombre: '', descripcion: '', direccion: '', telefono: '', email: '', imagenUrl: '' },
+    defaultValues: { nombre: '', descripcion: '', direccion: '', telefono: '', email: '' },
   });
 
   const cargar = () => {
@@ -56,9 +56,9 @@ export const MiLocalPage = () => {
           direccion: res.data.direccion || '',
           telefono: res.data.telefono,
           email: res.data.email || '',
-          imagenUrl: res.data.imagenUrl || '',
         });
         setFotos(res.data.fotos || []);
+        setImagenPortada(res.data.imagenUrl ? [res.data.imagenUrl] : []);
       })
       .catch(() => setLocal(null))
       .finally(() => setIsLoading(false));
@@ -71,7 +71,8 @@ export const MiLocalPage = () => {
     setError('');
     setExito('');
     try {
-      const payload = { ...data, email: data.email || undefined, imagenUrl: data.imagenUrl || undefined, fotos };
+      const portada = imagenPortada[0] || fotos[0] || undefined;
+      const payload = { ...data, email: data.email || undefined, imagenUrl: portada, fotos };
       const res = local
         ? await localesService.actualizarMiLocal(payload)
         : await localesService.crearMiLocal(payload);
@@ -132,18 +133,21 @@ export const MiLocalPage = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-ink-700 mb-1.5">Email de contacto</label>
-                        <input {...register('email')} className="input-field" />
-                        {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-ink-700 mb-1.5">URL de imagen de portada</label>
-                        <input {...register('imagenUrl')} className="input-field" placeholder="https://..." />
-                        {errors.imagenUrl && <p className="text-red-600 text-xs mt-1">{errors.imagenUrl.message}</p>}
-                      </div>
+                    <div>
+                      <label className="block text-sm font-medium text-ink-700 mb-1.5">Email de contacto</label>
+                      <input {...register('email')} className="input-field" />
+                      {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>}
                     </div>
+
+                    <SubidaFotos
+                      fotos={imagenPortada}
+                      onChange={setImagenPortada}
+                      maxFotos={1}
+                      label="Imagen de portada"
+                    />
+                    <p className="text-xs text-ink-400 -mt-2">
+                      Si no subes una portada, se usará automáticamente la primera foto del local.
+                    </p>
 
                     <SubidaFotos fotos={fotos} onChange={setFotos} label="Fotos del local" />
 

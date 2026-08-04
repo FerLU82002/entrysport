@@ -60,10 +60,10 @@ export const Sidebar = () => {
         {!collapsed && (
           <div className="flex items-center gap-2.5 min-w-0">
             <span className="flex items-center justify-center w-7 h-7 rounded-md bg-ink-900 text-white text-sm font-semibold shrink-0">
-              G
+              C
             </span>
             <div className="min-w-0">
-              <p className="font-semibold text-ink-900 text-sm truncate">GrassBooking</p>
+              <p className="font-semibold text-ink-900 text-sm truncate">Chocolaterospe</p>
               <p className="text-xs text-ink-400 truncate">{esSuperAdmin ? 'Panel general' : 'Panel de mi local'}</p>
             </div>
           </div>

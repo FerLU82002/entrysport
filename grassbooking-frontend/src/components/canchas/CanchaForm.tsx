@@ -19,7 +19,6 @@ const schema = z.object({
     .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido'),
   estado: z.enum(['activa', 'inactiva']),
   descripcion: z.string().optional(),
-  imagenUrl: z.string().url('URL inválida').optional().or(z.literal('')),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -33,6 +32,9 @@ interface Props {
 
 export const CanchaForm = ({ cancha, onSubmit, onCancelar, isLoading }: Props) => {
   const [fotos, setFotos] = useState<string[]>(cancha?.fotos || []);
+  const [imagenPortada, setImagenPortada] = useState<string[]>(
+    cancha?.imagenUrl ? [cancha.imagenUrl] : [],
+  );
 
   const {
     register,
@@ -50,7 +52,6 @@ export const CanchaForm = ({ cancha, onSubmit, onCancelar, isLoading }: Props) =
       horaInicioNoche: '18:00',
       estado: 'activa',
       descripcion: '',
-      imagenUrl: '',
     },
   });
 
@@ -65,14 +66,19 @@ export const CanchaForm = ({ cancha, onSubmit, onCancelar, isLoading }: Props) =
         horaInicioNoche: cancha.horaInicioNoche.substring(0, 5),
         estado: cancha.estado,
         descripcion: cancha.descripcion || '',
-        imagenUrl: cancha.imagenUrl || '',
       });
       setFotos(cancha.fotos || []);
+      setImagenPortada(cancha.imagenUrl ? [cancha.imagenUrl] : []);
     }
   }, [cancha, reset]);
 
   return (
-    <form onSubmit={handleSubmit((data) => onSubmit({ ...data, fotos }))} className="space-y-4">
+    <form
+      onSubmit={handleSubmit((data) =>
+        onSubmit({ ...data, fotos, imagenUrl: imagenPortada[0] || fotos[0] || undefined }),
+      )}
+      className="space-y-4"
+    >
       <div>
         <label className="block text-sm font-medium text-ink-700 mb-1.5">Nombre</label>
         <input {...register('nombre')} className="input-field" placeholder="Cancha 1 - Fútbol 7" />
@@ -143,12 +149,15 @@ export const CanchaForm = ({ cancha, onSubmit, onCancelar, isLoading }: Props) =
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-ink-700 mb-1.5">URL de imagen de portada (opcional)</label>
-        <input {...register('imagenUrl')} className="input-field" placeholder="https://..." />
-        {errors.imagenUrl && <p className="text-red-600 text-xs mt-1">{errors.imagenUrl.message}</p>}
-        <p className="text-xs text-ink-400 mt-1">Se usa como miniatura en las tarjetas. También puedes solo subir fotos abajo.</p>
-      </div>
+      <SubidaFotos
+        fotos={imagenPortada}
+        onChange={setImagenPortada}
+        maxFotos={1}
+        label="Imagen de portada"
+      />
+      <p className="text-xs text-ink-400 -mt-2">
+        Se muestra en la tarjeta. Si no subes una, se usa automáticamente la primera foto.
+      </p>
 
       <SubidaFotos fotos={fotos} onChange={setFotos} label="Fotos del espacio deportivo" />
 

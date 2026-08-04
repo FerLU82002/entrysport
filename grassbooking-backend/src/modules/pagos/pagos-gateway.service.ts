@@ -64,7 +64,7 @@ export class PagosGatewayService {
       body: JSON.stringify({
         amount: Math.round(Number(reserva.montoTotal) * 100),
         currency_code: creds.moneda || 'PEN',
-        email: dto.email || 'cliente@grassbooking.com',
+        email: dto.email || 'cliente@chocolaterospe.com',
         source_id: dto.tokenId,
         description: `Reserva #${reserva.id} - ${reserva.fechaReserva}`,
         metadata: { idReserva: reserva.id },

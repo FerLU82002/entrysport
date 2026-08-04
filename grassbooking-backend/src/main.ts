@@ -40,8 +40,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ResponseInterceptor());
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('GrassBooking API')
-    .setDescription('API para el sistema de reservas de Cancha Grass Bambino')
+    .setTitle('Chocolaterospe API')
+    .setDescription('API para el sistema de reservas de Chocolaterospe')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -51,7 +51,7 @@ async function bootstrap() {
 
   const port = configService.get<number>('PORT', 3000);
   await app.listen(port);
-  console.log(`GrassBooking API corriendo en: http://localhost:${port}/api`);
+  console.log(`Chocolaterospe API corriendo en: http://localhost:${port}/api`);
   console.log(`Swagger docs en: http://localhost:${port}/api/docs`);
 }
 

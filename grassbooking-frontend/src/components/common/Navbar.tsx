@@ -89,9 +89,9 @@ export const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <Link to={basePath} className="flex items-center gap-2.5">
             <span className="flex items-center justify-center w-7 h-7 rounded-md bg-ink-900 text-white text-sm font-semibold">
-              G
+              C
             </span>
-            <span className="font-semibold text-ink-900 tracking-tight">GrassBooking</span>
+            <span className="font-semibold text-ink-900 tracking-tight">Chocolaterospe</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-1">

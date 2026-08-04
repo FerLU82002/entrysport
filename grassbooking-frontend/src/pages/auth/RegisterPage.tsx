@@ -63,10 +63,10 @@ export const RegisterPage = () => {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <span className="inline-flex items-center justify-center w-9 h-9 rounded-md bg-ink-900 text-white text-base font-semibold mb-4">
-            G
+            C
           </span>
           <h1 className="text-xl font-semibold text-ink-900">Crea tu cuenta</h1>
-          <p className="text-ink-500 text-sm mt-1">Únete a GrassBooking</p>
+          <p className="text-ink-500 text-sm mt-1">Únete a Chocolaterospe</p>
         </div>
 
         <div className="bg-white rounded-lg border border-ink-100 shadow-card p-7">

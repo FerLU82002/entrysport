@@ -7,7 +7,9 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME:-grassbooking}
+      POSTGRES_DB: ${DB_NAME:-chocolaterospe}
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -32,10 +34,12 @@ services:
       DB_PORT: 5432
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME:-grassbooking}
+      DB_NAME: ${DB_NAME:-chocolaterospe}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
       FRONTEND_URL: ${FRONTEND_URL:-https://chocolaterospe.space}
+    volumes:
+      - uploads_data:/app/uploads
 
   # ── Nginx + SSL ────────────────────────────────────────────────
   nginx:
@@ -72,5 +76,6 @@ services:
 
 volumes:
   postgres_data:
+  uploads_data:
   certbot_www:
   certbot_certs:

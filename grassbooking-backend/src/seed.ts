@@ -11,7 +11,7 @@ const AppDataSource = new DataSource({
   port: Number(process.env.DB_PORT) || 5432,
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'grassbooking',
+  database: process.env.DB_NAME || 'chocolaterospe',
   synchronize: true,
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
 });
@@ -31,7 +31,7 @@ async function seed() {
   await AppDataSource.query(`
     INSERT INTO usuarios (nombre, email, telefono, password_hash, rol)
     VALUES
-      ('Super Administrador', 'superadmin@grassbooking.com', '062123456', $1, 'super_admin'),
+      ('Super Administrador', 'superadmin@chocolaterospe.com', '062123456', $1, 'super_admin'),
       ('Usuario Demo', 'usuario@demo.com', '987654321', $2, 'usuario')
     ON CONFLICT (email) DO NOTHING
   `, [superAdminHash, demoHash]);
@@ -41,18 +41,18 @@ async function seed() {
   await AppDataSource.query(`
     INSERT INTO locales (nombre, descripcion, direccion, telefono, email, estado)
     VALUES (
-      'Complejo Deportivo Grass Bambino',
+      'Complejo Deportivo Chocolaterospe',
       'Complejo con múltiples espacios deportivos: fútbol, pádel y vóley',
       'Av. Principal 123, Lima',
       '062123456',
-      'contacto@grassbambino.com',
+      'contacto@chocolaterospe.com',
       'activo'
     )
     ON CONFLICT DO NOTHING
   `);
 
   const localResult = await AppDataSource.query(
-    `SELECT id FROM locales WHERE nombre = 'Complejo Deportivo Grass Bambino' LIMIT 1`,
+    `SELECT id FROM locales WHERE nombre = 'Complejo Deportivo Chocolaterospe' LIMIT 1`,
   );
   const localId = localResult[0]?.id;
 
@@ -69,7 +69,7 @@ async function seed() {
   await AppDataSource.query(
     `
     INSERT INTO usuarios (nombre, email, telefono, password_hash, rol, id_local)
-    VALUES ('Administrador Grass Bambino', 'admin@grassbambino.com', '062123456', $1, 'admin_local', $2)
+    VALUES ('Administrador Chocolaterospe', 'admin@chocolaterospe.com', '062123456', $1, 'admin_local', $2)
     ON CONFLICT (email) DO NOTHING
   `,
     [adminLocalHash, localId],
@@ -122,8 +122,8 @@ async function seed() {
 
   console.log(`Horarios creados para ${canchasResult.length} cancha(s)`);
   console.log('\n=== SEED COMPLETADO ===');
-  console.log('Super admin: superadmin@grassbooking.com / SuperAdmin123!');
-  console.log('Admin local: admin@grassbambino.com / AdminLocal123!');
+  console.log('Super admin: superadmin@chocolaterospe.com / SuperAdmin123!');
+  console.log('Admin local: admin@chocolaterospe.com / AdminLocal123!');
   console.log('Demo:        usuario@demo.com / Demo123!');
   console.log('Local ID:', localId);
 

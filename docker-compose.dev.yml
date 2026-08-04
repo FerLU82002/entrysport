@@ -11,8 +11,8 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: GrassBambino2024
-      POSTGRES_DB: grassbooking
+      POSTGRES_PASSWORD: Chocolaterospe2024
+      POSTGRES_DB: chocolaterospe
     ports:
       - "5432:5432"
     volumes:

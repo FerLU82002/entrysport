@@ -73,7 +73,7 @@ export const ReportesPage = () => {
     // BOM para que Excel abra UTF-8 correctamente
     const BOM = '﻿';
 
-    filas.push(['REPORTE GRASSBOOKING', '', '']);
+    filas.push(['REPORTE CHOCOLATEROSPE', '', '']);
     filas.push([`Período: ${desde} al ${hasta}`, '', '']);
     filas.push([`Generado: ${hoy}`, '', '']);
     filas.push(['', '', '']);
@@ -109,7 +109,7 @@ export const ReportesPage = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `reporte_grassbooking_${desde}_${hasta}.csv`;
+    a.download = `reporte_chocolaterospe_${desde}_${hasta}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

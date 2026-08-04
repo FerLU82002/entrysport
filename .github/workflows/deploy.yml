@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy a Produccion (EC2)
 
 on:
   push:
@@ -6,29 +6,29 @@ on:
 
 jobs:
   deploy:
+    name: Deploy
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH to EC2
+      - name: Desplegar en EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          timeout: 300s
           script: |
-            cd /home/${{ secrets.EC2_USER }}/entrysport
+            set -e
+            cd /opt/app
 
+            echo "=== Descargando cambios de main ==="
             git pull origin main
 
-            cat > .env << 'EOF'
-            DB_USERNAME=${{ secrets.DB_USERNAME }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            JWT_EXPIRES_IN=8h
-            FRONTEND_URL=https://chocolaterospe.space
-            VITE_API_URL=https://chocolaterospe.space/api
-            EOF
+            echo "=== Reconstruyendo contenedores ==="
+            docker compose up -d --build --remove-orphans
 
-            docker compose up --build -d
+            echo "=== Limpiando imagenes sin uso ==="
             docker image prune -f
+
+            echo "=== Estado final ==="
+            docker compose ps

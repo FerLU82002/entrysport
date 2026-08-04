@@ -30,8 +30,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const tokenGuardado = localStorage.getItem('grassbooking_token');
-    const usuarioGuardado = localStorage.getItem('grassbooking_user');
+    const tokenGuardado = localStorage.getItem('chocolaterospe_token');
+    const usuarioGuardado = localStorage.getItem('chocolaterospe_user');
 
     if (tokenGuardado && usuarioGuardado) {
       setToken(tokenGuardado);
@@ -44,8 +44,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const response = await authService.login(credentials);
     const { token: nuevoToken, usuario: nuevoUsuario } = response.data;
 
-    localStorage.setItem('grassbooking_token', nuevoToken);
-    localStorage.setItem('grassbooking_user', JSON.stringify(nuevoUsuario));
+    localStorage.setItem('chocolaterospe_token', nuevoToken);
+    localStorage.setItem('chocolaterospe_user', JSON.stringify(nuevoUsuario));
 
     setToken(nuevoToken);
     setUsuario(nuevoUsuario);
@@ -57,8 +57,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = useCallback(() => {
     authService.logout().catch(() => {});
-    localStorage.removeItem('grassbooking_token');
-    localStorage.removeItem('grassbooking_user');
+    localStorage.removeItem('chocolaterospe_token');
+    localStorage.removeItem('chocolaterospe_user');
     setToken(null);
     setUsuario(null);
   }, []);

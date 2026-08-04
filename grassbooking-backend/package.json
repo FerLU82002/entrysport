@@ -1,8 +1,8 @@
 {
-  "name": "grassbooking-backend",
+  "name": "chocolaterospe-backend",
   "version": "1.0.0",
-  "description": "Sistema de reservas GrassBooking - Cancha Grass Bambino",
-  "author": "GrassBooking",
+  "description": "Sistema de reservas Chocolaterospe",
+  "author": "Chocolaterospe",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

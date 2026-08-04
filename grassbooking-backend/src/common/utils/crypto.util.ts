@@ -7,7 +7,7 @@ function getKey(): Buffer {
   if (!secret) {
     throw new Error('ENCRYPTION_KEY no está configurada');
   }
-  return scryptSync(secret, 'grassbooking-salt', 32);
+  return scryptSync(secret, 'chocolaterospe-salt', 32);
 }
 
 export function encriptar(texto: string): string {
