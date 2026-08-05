@@ -8,6 +8,17 @@ interface CreateReservaPayload {
   notas?: string;
 }
 
+export interface CreateReservaManualPayload {
+  idCancha: number;
+  fechaReserva: string;
+  horaInicio: string;
+  nombreCliente?: string;
+  telefonoCliente?: string;
+  metodoPago: string;
+  pagado: boolean;
+  notas?: string;
+}
+
 export const reservasService = {
   async getMisReservas() {
     const res = await api.get<ApiResponse<Reserva[]>>('/reservas');
@@ -31,6 +42,11 @@ export const reservasService = {
 
   async create(data: CreateReservaPayload) {
     const res = await api.post<ApiResponse<Reserva>>('/reservas', data);
+    return res.data;
+  },
+
+  async createManual(data: CreateReservaManualPayload) {
+    const res = await api.post<ApiResponse<Reserva>>('/reservas/manual', data);
     return res.data;
   },
 

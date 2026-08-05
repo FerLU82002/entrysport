@@ -13,6 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { ReservasService } from './reservas.service';
 import { CreateReservaDto } from './dto/create-reserva.dto';
+import { CreateReservaManualDto } from './dto/create-reserva-manual.dto';
 import { UpdateEstadoReservaDto } from './dto/update-reserva.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -71,6 +72,15 @@ export class ReservasController {
   @ApiOperation({ summary: 'Crear reserva [USUARIO]' })
   create(@Body() createDto: CreateReservaDto, @Request() req: ReqUser) {
     return this.reservasService.create(createDto, req.user.id);
+  }
+
+  @Post('manual')
+  @UseGuards(RolesGuard)
+  @Roles('admin_local', 'super_admin')
+  @ApiOperation({ summary: 'Registrar reserva manual (cliente en local) [ADMIN_LOCAL]' })
+  createManual(@Body() dto: CreateReservaManualDto, @Request() req: ReqUser) {
+    const idLocal = req.user.idLocal ?? 0;
+    return this.reservasService.createManual(dto, req.user.id, idLocal);
   }
 
   @Patch(':id/cancelar')

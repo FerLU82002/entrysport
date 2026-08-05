@@ -11,6 +11,7 @@ import { Cancha } from '../canchas/entities/cancha.entity';
 import { Notificacion } from '../notificaciones/entities/notificacion.entity';
 import { Pago } from '../pagos/entities/pago.entity';
 import { CreateReservaDto } from './dto/create-reserva.dto';
+import { CreateReservaManualDto } from './dto/create-reserva-manual.dto';
 import { UpdateEstadoReservaDto } from './dto/update-reserva.dto';
 
 @Injectable()
@@ -262,5 +263,87 @@ export class ReservasService {
     }
 
     return { data: actualizada, message: 'Estado actualizado' };
+  }
+
+  async createManual(dto: CreateReservaManualDto, adminUserId: number, idLocal: number) {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fechaReserva = new Date(dto.fechaReserva + 'T00:00:00');
+
+    if (fechaReserva < hoy) {
+      throw new BadRequestException('No se pueden crear reservas en fechas pasadas');
+    }
+
+    const [horaH, horaM] = dto.horaInicio.split(':').map(Number);
+    if (horaH < 8 || horaH > 23) {
+      throw new BadRequestException('El horario debe ser entre 08:00 y 23:00');
+    }
+
+    // Verificar que la cancha pertenece al local del admin
+    const cancha = await this.canchasRepository.findOne({
+      where: { id: dto.idCancha, estado: 'activa', idLocal },
+    });
+
+    if (!cancha) {
+      throw new NotFoundException('Cancha no encontrada, inactiva o no pertenece a tu local');
+    }
+
+    const nextH = horaH + 1;
+    const horaFin =
+      nextH >= 24
+        ? `00:${String(horaM).padStart(2, '0')}`
+        : `${String(nextH).padStart(2, '0')}:${String(horaM).padStart(2, '0')}`;
+
+    // Verificar conflicto de horario
+    const horaInicioNorm = dto.horaInicio.substring(0, 5);
+    const conflicto = await this.reservasRepository
+      .createQueryBuilder('r')
+      .where('r.idCancha = :idCancha', { idCancha: dto.idCancha })
+      .andWhere('r.fechaReserva = :fecha', { fecha: dto.fechaReserva })
+      .andWhere('CAST(r.horaInicio AS text) LIKE :hora', { hora: `${horaInicioNorm}%` })
+      .andWhere("r.estado != 'cancelada'")
+      .getOne();
+
+    if (conflicto) {
+      throw new BadRequestException('Este horario ya está reservado');
+    }
+
+    const esNocturno = dto.horaInicio >= cancha.horaInicioNoche.substring(0, 5);
+    const montoTotal = esNocturno
+      ? Number(cancha.precioHoraNoche)
+      : Number(cancha.precioHoraDia);
+
+    // Armar notas: info del cliente + notas extra
+    const partesNotas: string[] = [];
+    if (dto.nombreCliente) partesNotas.push(`Cliente: ${dto.nombreCliente}`);
+    if (dto.telefonoCliente) partesNotas.push(`Tel: ${dto.telefonoCliente}`);
+    if (dto.notas) partesNotas.push(dto.notas);
+    const notasFinal = partesNotas.length > 0 ? partesNotas.join(' | ') : undefined;
+
+    const reserva = this.reservasRepository.create({
+      idUsuario: adminUserId,
+      idCancha: dto.idCancha,
+      fechaReserva: dto.fechaReserva,
+      horaInicio: dto.horaInicio,
+      horaFin,
+      montoTotal,
+      notas: notasFinal,
+      estado: 'confirmada', // reserva manual ya está confirmada
+    });
+
+    const reservaGuardada = await this.reservasRepository.save(reserva);
+
+    const pago = this.pagosRepository.create({
+      idReserva: reservaGuardada.id,
+      idLocal: cancha.idLocal,
+      monto: montoTotal,
+      estadoPago: dto.pagado ? 'pagado' : 'pendiente',
+      metodoPago: dto.metodoPago,
+    });
+    await this.pagosRepository.save(pago);
+
+    reservaGuardada.cancha = cancha;
+
+    return { data: reservaGuardada, message: 'Reserva manual registrada exitosamente' };
   }
 }
