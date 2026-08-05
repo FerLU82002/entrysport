@@ -14,7 +14,7 @@ export const getDatabaseConfig = (
   synchronize: configService.get<string>('NODE_ENV') === 'development',
   logging: configService.get<string>('NODE_ENV') === 'development',
   ssl:
-    configService.get<string>('NODE_ENV') === 'production'
+    configService.get<string>('DB_SSL', 'false') === 'true'
       ? { rejectUnauthorized: false }
       : false,
 });
