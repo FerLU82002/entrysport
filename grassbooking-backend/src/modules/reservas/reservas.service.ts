@@ -106,7 +106,7 @@ export class ReservasService {
     }
 
     const [horaH, horaM] = createDto.horaInicio.split(':').map(Number);
-    if (horaH < 8 || horaH >= 23) {
+    if (horaH < 8 || horaH > 23) {
       throw new BadRequestException('El horario debe ser entre 08:00 y 23:00');
     }
 
@@ -118,17 +118,24 @@ export class ReservasService {
       throw new NotFoundException('Cancha no encontrada o inactiva');
     }
 
-    const horaFin = `${String(horaH + 1).padStart(2, '0')}:${String(horaM).padStart(2, '0')}`;
+    // El slot de las 23:00 termina a las 00:00 (medianoche)
+    const nextH = horaH + 1;
+    const horaFin =
+      nextH >= 24
+        ? `00:${String(horaM).padStart(2, '0')}`
+        : `${String(nextH).padStart(2, '0')}:${String(horaM).padStart(2, '0')}`;
 
-    const conflicto = await this.reservasRepository.findOne({
-      where: {
-        idCancha: createDto.idCancha,
-        fechaReserva: createDto.fechaReserva,
-        horaInicio: createDto.horaInicio,
-      },
-    });
+    // Verificar conflicto con CAST explícito para evitar desajustes de formato HH:MM vs HH:MM:SS
+    const horaInicioNorm = createDto.horaInicio.substring(0, 5);
+    const conflicto = await this.reservasRepository
+      .createQueryBuilder('r')
+      .where('r.idCancha = :idCancha', { idCancha: createDto.idCancha })
+      .andWhere('r.fechaReserva = :fecha', { fecha: createDto.fechaReserva })
+      .andWhere('CAST(r.horaInicio AS text) LIKE :hora', { hora: `${horaInicioNorm}%` })
+      .andWhere("r.estado != 'cancelada'")
+      .getOne();
 
-    if (conflicto && conflicto.estado !== 'cancelada') {
+    if (conflicto) {
       throw new BadRequestException('Este horario ya está reservado');
     }
 
