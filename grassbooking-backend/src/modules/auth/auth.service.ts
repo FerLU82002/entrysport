@@ -105,9 +105,9 @@ export class AuthService {
   }
 
   async cognitoExchange(code: string) {
-    const domain = this.configService.get<string>('COGNITO_DOMAIN');
-    const clientId = this.configService.get<string>('COGNITO_CLIENT_ID');
-    const redirectUri = this.configService.get<string>('COGNITO_REDIRECT_URI');
+    const domain = this.configService.get<string>('COGNITO_DOMAIN', '');
+    const clientId = this.configService.get<string>('COGNITO_CLIENT_ID', '');
+    const redirectUri = this.configService.get<string>('COGNITO_REDIRECT_URI', '');
 
     // Intercambiar código por tokens con Cognito
     const tokenResponse = await fetch(`https://${domain}/oauth2/token`, {
