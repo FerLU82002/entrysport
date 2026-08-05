@@ -4,6 +4,7 @@ import { LoginCredentials, RegisterData, ApiResponse, Usuario } from '../types';
 interface LoginResponseData {
   token: string;
   usuario: Usuario;
+  mustChangePassword?: boolean;
 }
 
 export const authService = {

@@ -8,6 +8,7 @@ export interface Usuario {
   rol: RolUsuario;
   idLocal?: number | null;
   createdAt?: string;
+  mustChangePassword?: boolean;
 }
 
 export interface Local {
