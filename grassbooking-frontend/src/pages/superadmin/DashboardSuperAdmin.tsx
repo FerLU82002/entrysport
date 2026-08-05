@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, UserPlus } from 'lucide-react';
+import { Building2, UserPlus, Users } from 'lucide-react';
 import { Sidebar } from '../../components/common/Sidebar';
 import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
@@ -76,6 +76,15 @@ export const DashboardSuperAdmin = () => {
                     <div>
                       <p className="font-medium text-ink-800 text-sm">Crear cuenta de admin</p>
                       <p className="text-xs text-ink-400">Da acceso a un nuevo dueño de cancha</p>
+                    </div>
+                  </Link>
+                  <Link to="/superadmin/usuarios" className="card hover:border-ink-300 transition-colors flex items-center gap-3">
+                    <span className="flex items-center justify-center w-10 h-10 rounded-md bg-ink-100 text-ink-500 shrink-0">
+                      <Users size={18} strokeWidth={1.75} />
+                    </span>
+                    <div>
+                      <p className="font-medium text-ink-800 text-sm">Ver usuarios</p>
+                      <p className="text-xs text-ink-400">Lista de todos los usuarios registrados</p>
                     </div>
                   </Link>
                 </div>

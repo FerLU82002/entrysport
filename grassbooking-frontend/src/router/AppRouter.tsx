@@ -26,6 +26,7 @@ import { ExcepcionesPage } from '../pages/admin/ExcepcionesPage';
 import { DashboardSuperAdmin } from '../pages/superadmin/DashboardSuperAdmin';
 import { LocalesAdminPage } from '../pages/superadmin/LocalesAdminPage';
 import { CrearAdminLocalPage } from '../pages/superadmin/CrearAdminLocalPage';
+import { UsuariosAdminPage } from '../pages/superadmin/UsuariosAdminPage';
 
 const rutaInicioPorRol = (rol?: string) => {
   if (rol === 'super_admin') return '/superadmin';
@@ -83,6 +84,7 @@ export const AppRouter = () => {
         <Route path="/superadmin" element={<DashboardSuperAdmin />} />
         <Route path="/superadmin/locales" element={<LocalesAdminPage />} />
         <Route path="/superadmin/crear-admin" element={<CrearAdminLocalPage />} />
+        <Route path="/superadmin/usuarios" element={<UsuariosAdminPage />} />
       </Route>
 
       <Route
