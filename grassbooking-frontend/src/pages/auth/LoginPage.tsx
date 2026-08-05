@@ -17,7 +17,6 @@ type FormData = z.infer<typeof schema>;
 const COGNITO_DOMAIN = import.meta.env.VITE_COGNITO_DOMAIN;
 const COGNITO_CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID;
 const COGNITO_REDIRECT_URI = import.meta.env.VITE_COGNITO_REDIRECT_URI;
-const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID;
 
 export const LoginPage = () => {
   const { login } = useAuth();
@@ -37,26 +36,6 @@ export const LoginPage = () => {
     window.location.href = `https://${COGNITO_DOMAIN}/oauth2/authorize?${params}`;
   };
 
-  const loginConFacebook = () => {
-    const params = new URLSearchParams({
-      response_type: 'code',
-      client_id: COGNITO_CLIENT_ID,
-      redirect_uri: COGNITO_REDIRECT_URI,
-      scope: 'openid email profile',
-      identity_provider: 'Facebook',
-    });
-    window.location.href = `https://${COGNITO_DOMAIN}/oauth2/authorize?${params}`;
-  };
-
-  const loginConGitHub = () => {
-    const redirectUri = `${window.location.origin}/github-callback`;
-    const params = new URLSearchParams({
-      client_id: GITHUB_CLIENT_ID,
-      redirect_uri: redirectUri,
-      scope: 'read:user user:email',
-    });
-    window.location.href = `https://github.com/login/oauth/authorize?${params}`;
-  };
 
   const {
     register,
