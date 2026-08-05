@@ -16,6 +16,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { CognitoExchangeDto } from './dto/cognito-exchange.dto';
+import { GithubExchangeDto } from './dto/github-exchange.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 interface RequestConUsuario extends Request {
@@ -48,6 +49,13 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Login con Cognito exitoso' })
   async cognitoExchange(@Body() dto: CognitoExchangeDto) {
     return this.authService.cognitoExchange(dto.code);
+  }
+
+  @Post('github/exchange')
+  @ApiOperation({ summary: 'Intercambiar código GitHub por JWT local' })
+  @ApiResponse({ status: 200, description: 'Login con GitHub exitoso' })
+  async githubExchange(@Body() dto: GithubExchangeDto) {
+    return this.authService.githubExchange(dto.code);
   }
 
   @Post('logout')

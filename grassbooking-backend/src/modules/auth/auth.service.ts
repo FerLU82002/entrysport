@@ -182,6 +182,77 @@ export class AuthService {
     };
   }
 
+  async githubExchange(code: string) {
+    const clientId = this.configService.get<string>('GITHUB_CLIENT_ID', '');
+    const clientSecret = this.configService.get<string>('GITHUB_CLIENT_SECRET', '');
+
+    // Intercambiar código por access token
+    const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, code }),
+    });
+
+    const tokenData = await tokenResponse.json() as { access_token?: string; error?: string; error_description?: string };
+    if (!tokenData.access_token) {
+      throw new UnauthorizedException(`GitHub error: ${tokenData.error_description || 'token inválido'}`);
+    }
+
+    const accessToken = tokenData.access_token;
+
+    // Obtener datos del usuario
+    const userResponse = await fetch('https://api.github.com/user', {
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/vnd.github.v3+json' },
+    });
+    const githubUser = await userResponse.json() as { email?: string; name?: string; login?: string };
+
+    // Obtener email si no es público
+    let email: string = githubUser.email || '';
+    if (!email) {
+      const emailRes = await fetch('https://api.github.com/user/emails', {
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/vnd.github.v3+json' },
+      });
+      const emails = await emailRes.json() as { email: string; primary: boolean; verified: boolean }[];
+      const primary = emails.find((e) => e.primary && e.verified);
+      email = primary?.email || emails[0]?.email || '';
+    }
+
+    if (!email) {
+      throw new UnauthorizedException('No se pudo obtener el email de GitHub');
+    }
+
+    const nombre: string = githubUser.name || githubUser.login || email.split('@')[0];
+
+    // Buscar o crear usuario local
+    let usuario = await this.usuariosRepository.findOne({ where: { email } });
+    if (!usuario) {
+      const passwordHash = await bcrypt.hash(Math.random().toString(36) + Date.now(), 10);
+      usuario = this.usuariosRepository.create({ nombre, email, passwordHash, rol: 'usuario' });
+      usuario = await this.usuariosRepository.save(usuario);
+    }
+
+    const jwtPayload = { sub: usuario.id, email: usuario.email, rol: usuario.rol, idLocal: usuario.idLocal };
+    const token = this.jwtService.sign(jwtPayload);
+
+    return {
+      data: {
+        token,
+        usuario: {
+          id: usuario.id,
+          nombre: usuario.nombre,
+          email: usuario.email,
+          telefono: usuario.telefono,
+          rol: usuario.rol,
+          idLocal: usuario.idLocal,
+        },
+      },
+      message: 'Inicio de sesión con GitHub exitoso',
+    };
+  }
+
   async obtenerPerfil(userId: number) {
     const usuario = await this.usuariosRepository.findOne({
       where: { id: userId },

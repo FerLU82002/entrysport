@@ -66,6 +66,7 @@ services:
         VITE_COGNITO_DOMAIN: chocolaterospe-prod.auth.us-east-1.amazoncognito.com
         VITE_COGNITO_CLIENT_ID: 41dqfcudcd66kv47bt310ktsht
         VITE_COGNITO_REDIRECT_URI: https://chocolaterospe.space/callback
+        VITE_GITHUB_CLIENT_ID: ${VITE_GITHUB_CLIENT_ID:-}
     restart: unless-stopped
 
   # ── Certbot (SSL + renovación automática) ─────────────────────
