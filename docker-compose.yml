@@ -63,6 +63,9 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL:-https://chocolaterospe.space/api}
+        VITE_COGNITO_DOMAIN: chocolaterospe-prod.auth.us-east-1.amazoncognito.com
+        VITE_COGNITO_CLIENT_ID: 41dqfcudcd66kv47bt310ktsht
+        VITE_COGNITO_REDIRECT_URI: https://chocolaterospe.space/callback
     restart: unless-stopped
 
   # ── Certbot (SSL + renovación automática) ─────────────────────

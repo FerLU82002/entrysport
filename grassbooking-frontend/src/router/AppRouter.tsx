@@ -5,6 +5,7 @@ import { ProtectedRoute } from '../components/common/ProtectedRoute';
 
 import { LoginPage } from '../pages/auth/LoginPage';
 import { RegisterPage } from '../pages/auth/RegisterPage';
+import { CognitoCallbackPage } from '../pages/auth/CognitoCallbackPage';
 
 import { DashboardUsuario } from '../pages/usuario/DashboardUsuario';
 import { CanchasPage } from '../pages/usuario/CanchasPage';
@@ -52,6 +53,7 @@ export const AppRouter = () => {
         path="/register"
         element={isAuthenticated ? <Navigate to="/dashboard" /> : <RegisterPage />}
       />
+      <Route path="/callback" element={<CognitoCallbackPage />} />
 
       {/* Explorar locales y canchas, y ver disponibilidad, es público — como en Joinnus.
           Solo se pide cuenta al confirmar la reserva (ver ConfirmacionReserva). */}

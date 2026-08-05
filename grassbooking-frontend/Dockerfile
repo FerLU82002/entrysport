@@ -7,7 +7,13 @@ COPY . .
 # ARG allows overriding the API URL at build time:
 # docker build --build-arg VITE_API_URL=https://tu-dominio.com/api ...
 ARG VITE_API_URL=http://localhost:3000/api
+ARG VITE_COGNITO_DOMAIN=""
+ARG VITE_COGNITO_CLIENT_ID=""
+ARG VITE_COGNITO_REDIRECT_URI=""
 ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_COGNITO_DOMAIN=$VITE_COGNITO_DOMAIN
+ENV VITE_COGNITO_CLIENT_ID=$VITE_COGNITO_CLIENT_ID
+ENV VITE_COGNITO_REDIRECT_URI=$VITE_COGNITO_REDIRECT_URI
 RUN npm run build
 
 # ---- Production stage (nginx) ----

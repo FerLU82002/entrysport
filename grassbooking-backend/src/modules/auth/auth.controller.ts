@@ -15,6 +15,7 @@ import {
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { CognitoExchangeDto } from './dto/cognito-exchange.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 interface RequestConUsuario extends Request {
@@ -40,6 +41,13 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Credenciales incorrectas' })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
+  }
+
+  @Post('cognito/exchange')
+  @ApiOperation({ summary: 'Intercambiar código Cognito por JWT local' })
+  @ApiResponse({ status: 200, description: 'Login con Cognito exitoso' })
+  async cognitoExchange(@Body() dto: CognitoExchangeDto) {
+    return this.authService.cognitoExchange(dto.code);
   }
 
   @Post('logout')
