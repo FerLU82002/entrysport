@@ -97,12 +97,6 @@ export const LoginPage = () => {
           </p>
         </div>
 
-        <div className="mt-4 p-3.5 rounded-md border border-ink-100 bg-white text-xs text-ink-500 space-y-0.5">
-          <p className="font-medium text-ink-700 mb-1">Cuentas de prueba</p>
-          <p>Super admin — superadmin@chocolaterospe.com / SuperAdmin123!</p>
-          <p>Admin de local — admin@chocolaterospe.com / AdminLocal123!</p>
-          <p>Demo — usuario@demo.com / Demo123!</p>
-        </div>
       </div>
     </div>
   );
