@@ -40,6 +40,12 @@ export class Usuario {
   @Column({ name: 'id_local', type: 'integer', nullable: true })
   idLocal: number | null;
 
+  @Column({ name: 'must_change_password', type: 'boolean', default: false })
+  mustChangePassword: boolean;
+
+  @Column({ name: 'temp_password_expiry', type: 'timestamp', nullable: true })
+  tempPasswordExpiry: Date | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

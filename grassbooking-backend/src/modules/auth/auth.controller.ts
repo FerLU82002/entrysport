@@ -5,6 +5,7 @@ import {
   Body,
   UseGuards,
   Request,
+  HttpCode,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -56,6 +57,18 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Login con GitHub exitoso' })
   async githubExchange(@Body() dto: GithubExchangeDto) {
     return this.authService.githubExchange(dto.code);
+  }
+
+  @Post('cambiar-password')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Cambiar contraseña (obligatorio tras contraseña temporal)' })
+  async cambiarPassword(
+    @Request() req: RequestConUsuario,
+    @Body() body: { passwordActual: string; passwordNueva: string },
+  ) {
+    return this.authService.cambiarPassword(req.user.id, body.passwordActual, body.passwordNueva);
   }
 
   @Post('logout')

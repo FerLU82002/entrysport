@@ -67,6 +67,11 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
 
+    // Contraseña temporal vencida
+    if (usuario.mustChangePassword && usuario.tempPasswordExpiry && usuario.tempPasswordExpiry < new Date()) {
+      throw new UnauthorizedException('Tu contraseña temporal ha vencido. Contacta al administrador.');
+    }
+
     const payload = {
       sub: usuario.id,
       email: usuario.email,
@@ -78,6 +83,7 @@ export class AuthService {
     return {
       data: {
         token,
+        mustChangePassword: usuario.mustChangePassword,
         usuario: {
           id: usuario.id,
           nombre: usuario.nombre,
@@ -87,8 +93,23 @@ export class AuthService {
           idLocal: usuario.idLocal,
         },
       },
-      message: 'Inicio de sesión exitoso',
+      message: usuario.mustChangePassword ? 'Debes cambiar tu contraseña temporal' : 'Inicio de sesión exitoso',
     };
+  }
+
+  async cambiarPassword(userId: number, passwordActual: string, passwordNueva: string) {
+    const usuario = await this.usuariosRepository.findOne({ where: { id: userId } });
+    if (!usuario) throw new UnauthorizedException('Usuario no encontrado');
+
+    const valida = await bcrypt.compare(passwordActual, usuario.passwordHash);
+    if (!valida) throw new UnauthorizedException('La contraseña actual es incorrecta');
+
+    usuario.passwordHash = await bcrypt.hash(passwordNueva, 12);
+    usuario.mustChangePassword = false;
+    usuario.tempPasswordExpiry = null;
+    await this.usuariosRepository.save(usuario);
+
+    return { data: null, message: 'Contraseña actualizada exitosamente' };
   }
 
   async validarCredenciales(email: string, password: string) {

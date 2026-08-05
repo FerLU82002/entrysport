@@ -21,24 +21,56 @@ export class UsuariosService {
     return { data: usuarios, message: 'Usuarios obtenidos' };
   }
 
+  private generarPasswordTemporal(longitud: number): string {
+    const mayusculas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const minusculas = 'abcdefghijklmnopqrstuvwxyz';
+    const numeros = '0123456789';
+    const todos = mayusculas + minusculas + numeros;
+
+    let password = '';
+    password += mayusculas[Math.floor(Math.random() * mayusculas.length)];
+    password += minusculas[Math.floor(Math.random() * minusculas.length)];
+    password += numeros[Math.floor(Math.random() * numeros.length)];
+
+    for (let i = 3; i < longitud; i++) {
+      password += todos[Math.floor(Math.random() * todos.length)];
+    }
+
+    return password.split('').sort(() => Math.random() - 0.5).join('');
+  }
+
   async crearAdminLocal(dto: CreateAdminLocalDto) {
     const existente = await this.usuariosRepository.findOne({ where: { email: dto.email } });
     if (existente) {
       throw new ConflictException('El email ya está registrado');
     }
 
-    const passwordHash = await bcrypt.hash(dto.password, 12);
+    const passwordTemporal = this.generarPasswordTemporal(dto.longitud);
+    const passwordHash = await bcrypt.hash(passwordTemporal, 12);
+
+    const expiry = new Date();
+    expiry.setDate(expiry.getDate() + dto.duracionDias);
+
     const usuario = this.usuariosRepository.create({
       nombre: dto.nombre,
       email: dto.email,
       telefono: dto.telefono,
       passwordHash,
       rol: 'admin_local',
+      mustChangePassword: true,
+      tempPasswordExpiry: expiry,
     });
 
     const guardado = await this.usuariosRepository.save(usuario);
     const { passwordHash: _, ...sinPassword } = guardado;
-    return { data: sinPassword, message: 'Cuenta de administrador de local creada' };
+
+    return {
+      data: {
+        ...sinPassword,
+        passwordTemporal,
+      },
+      message: 'Cuenta de administrador de local creada',
+    };
   }
 
   async findOne(id: number) {

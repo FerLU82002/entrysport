@@ -42,13 +42,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const login = useCallback(async (credentials: LoginCredentials) => {
     const response = await authService.login(credentials);
-    const { token: nuevoToken, usuario: nuevoUsuario } = response.data;
+    const { token: nuevoToken, usuario: nuevoUsuario, mustChangePassword } = response.data;
 
     localStorage.setItem('chocolaterospe_token', nuevoToken);
-    localStorage.setItem('chocolaterospe_user', JSON.stringify(nuevoUsuario));
+    localStorage.setItem('chocolaterospe_user', JSON.stringify({ ...nuevoUsuario, mustChangePassword }));
 
     setToken(nuevoToken);
-    setUsuario(nuevoUsuario);
+    setUsuario({ ...nuevoUsuario, mustChangePassword });
+
+    if (mustChangePassword) {
+      window.location.href = '/cambiar-password';
+    }
   }, []);
 
   const register = useCallback(async (data: RegisterData) => {

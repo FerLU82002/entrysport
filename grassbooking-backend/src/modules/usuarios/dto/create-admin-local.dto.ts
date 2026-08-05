@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, MaxLength, Matches, IsOptional } from 'class-validator';
+import { IsEmail, IsString, MinLength, MaxLength, IsOptional, IsInt, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateAdminLocalDto {
@@ -19,12 +19,15 @@ export class CreateAdminLocalDto {
   @MaxLength(15)
   telefono?: string;
 
-  @ApiProperty({ example: 'ClaveTemporal123!' })
-  @IsString()
-  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
-  @MaxLength(50)
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
-    message: 'La contraseña debe contener mayúscula, minúscula y número',
-  })
-  password: string;
+  @ApiProperty({ example: 12, description: 'Longitud de la contraseña temporal (8-20)', default: 12 })
+  @IsInt()
+  @Min(8)
+  @Max(20)
+  longitud: number;
+
+  @ApiProperty({ example: 7, description: 'Días de validez de la contraseña temporal (1-30)', default: 7 })
+  @IsInt()
+  @Min(1)
+  @Max(30)
+  duracionDias: number;
 }

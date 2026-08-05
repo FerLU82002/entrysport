@@ -11,9 +11,10 @@ export const usuariosService = {
     nombre: string;
     email: string;
     telefono?: string;
-    password: string;
+    longitud: number;
+    duracionDias: number;
   }) {
-    const res = await api.post<ApiResponse<Usuario>>('/usuarios/admin-local', data);
+    const res = await api.post<ApiResponse<Usuario & { passwordTemporal: string }>>('/usuarios/admin-local', data);
     return res.data;
   },
 };

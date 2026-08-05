@@ -6,6 +6,7 @@ import { ProtectedRoute } from '../components/common/ProtectedRoute';
 import { LoginPage } from '../pages/auth/LoginPage';
 import { RegisterPage } from '../pages/auth/RegisterPage';
 import { CognitoCallbackPage } from '../pages/auth/CognitoCallbackPage';
+import { CambiarPasswordPage } from '../pages/auth/CambiarPasswordPage';
 import { GitHubCallbackPage } from '../pages/auth/GitHubCallbackPage';
 
 import { DashboardUsuario } from '../pages/usuario/DashboardUsuario';
@@ -56,6 +57,7 @@ export const AppRouter = () => {
         element={isAuthenticated ? <Navigate to="/dashboard" /> : <RegisterPage />}
       />
       <Route path="/callback" element={<CognitoCallbackPage />} />
+      <Route path="/cambiar-password" element={<CambiarPasswordPage />} />
       <Route path="/github-callback" element={<GitHubCallbackPage />} />
 
       {/* Explorar locales y canchas, y ver disponibilidad, es público — como en Joinnus.
