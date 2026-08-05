@@ -14,6 +14,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger'
 import { HorariosService } from './horarios.service';
 import { CreateHorarioDto } from './dto/create-horario.dto';
 import { UpdateHorarioDto } from './dto/update-horario.dto';
+import { GenerarHorariosDto } from './dto/generar-horarios.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -49,9 +50,18 @@ export class HorariosController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('super_admin', 'admin_local')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Crear horario [SUPER_ADMIN, ADMIN_LOCAL dueño]' })
+  @ApiOperation({ summary: 'Crear horario individual [SUPER_ADMIN, ADMIN_LOCAL dueño]' })
   create(@Body() createDto: CreateHorarioDto, @Request() req: ReqUser) {
     return this.horariosService.create(createDto, req.user);
+  }
+
+  @Post('generar')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('super_admin', 'admin_local')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Generar horarios automáticamente por rango de horas [ADMIN_LOCAL]' })
+  generar(@Body() dto: GenerarHorariosDto, @Request() req: ReqUser) {
+    return this.horariosService.generarHorarios(dto, req.user);
   }
 
   @Patch(':id')

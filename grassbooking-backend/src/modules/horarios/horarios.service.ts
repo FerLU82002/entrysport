@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Horario, DiaSemana } from './entities/horario.entity';
@@ -8,6 +8,7 @@ import { CanchasService } from '../canchas/canchas.service';
 import { LocalesService } from '../locales/locales.service';
 import { CreateHorarioDto } from './dto/create-horario.dto';
 import { UpdateHorarioDto } from './dto/update-horario.dto';
+import { GenerarHorariosDto } from './dto/generar-horarios.dto';
 import { Usuario } from '../usuarios/entities/usuario.entity';
 
 const DIAS_SEMANA: Record<number, DiaSemana> = {
@@ -138,5 +139,50 @@ export class HorariosService {
     Object.assign(horario, updateDto);
     const actualizado = await this.horariosRepository.save(horario);
     return { data: actualizado, message: 'Horario actualizado' };
+  }
+
+  async generarHorarios(dto: GenerarHorariosDto, usuario: Usuario) {
+    await this.verificarPropietarioDeCancha(usuario, dto.idCancha);
+
+    const [aperturaH] = dto.horaApertura.split(':').map(Number);
+    const [cierreH] = dto.horaCierre.split(':').map(Number);
+
+    if (aperturaH >= cierreH) {
+      throw new BadRequestException(
+        'La hora de apertura debe ser menor que la hora del último turno',
+      );
+    }
+
+    // Eliminar horarios existentes de los días seleccionados para esta cancha
+    await this.horariosRepository
+      .createQueryBuilder()
+      .delete()
+      .from(Horario)
+      .where('id_cancha = :idCancha', { idCancha: dto.idCancha })
+      .andWhere('dia_semana IN (:...dias)', { dias: dto.dias })
+      .execute();
+
+    // Generar un slot por hora desde apertura hasta cierre (inclusive)
+    const nuevos: Partial<Horario>[] = [];
+    for (const dia of dto.dias) {
+      for (let h = aperturaH; h <= cierreH; h++) {
+        const nextH = (h + 1) % 24; // 23+1 → 0 (medianoche)
+        nuevos.push({
+          idCancha: dto.idCancha,
+          diaSemana: dia,
+          horaInicio: `${String(h).padStart(2, '0')}:00`,
+          horaFin: `${String(nextH).padStart(2, '0')}:00`,
+          disponible: true,
+        });
+      }
+    }
+
+    const creados = this.horariosRepository.create(nuevos as Horario[]);
+    await this.horariosRepository.save(creados);
+
+    return {
+      data: creados,
+      message: `Se generaron ${nuevos.length} horario(s) para ${dto.dias.length} día(s)`,
+    };
   }
 }
