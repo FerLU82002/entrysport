@@ -14,4 +14,4 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 EXPOSE 3000
-CMD ["node", "dist/main"]
+CMD ["sh", "-c", "node node_modules/.bin/typeorm migration:run -d dist/config/typeorm.datasource.js && node dist/main"]
