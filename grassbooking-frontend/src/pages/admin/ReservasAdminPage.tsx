@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { X, ClipboardList, Plus, RefreshCw } from 'lucide-react';
+import { X, ClipboardList, Plus, RefreshCw, LayoutList, CalendarDays } from 'lucide-react';
 import { Sidebar } from '../../components/common/Sidebar';
 import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { ReservaCard } from '../../components/reservas/ReservaCard';
+import { CalendarioReservas } from '../../components/reservas/CalendarioReservas';
 import { reservasService, CreateReservaManualPayload } from '../../services/reservas.service';
 import { pagosService } from '../../services/pagos.service';
 import { canchasService } from '../../services/canchas.service';
@@ -24,6 +25,9 @@ const METODOS_PAGO = ['efectivo', 'yape', 'plin', 'transferencia', 'tarjeta'];
 const hoy = () => new Date().toISOString().split('T')[0];
 
 export const ReservasAdminPage = () => {
+  const [vista, setVista] = useState<'lista' | 'calendario'>('calendario');
+  const [calRefreshKey, setCalRefreshKey] = useState(0);
+
   const [reservas, setReservas] = useState<Reserva[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filtroEstado, setFiltroEstado] = useState<EstadoReserva | 'todas'>('todas');
@@ -112,6 +116,7 @@ export const ReservasAdminPage = () => {
       }
       setModalReserva(null);
       cargar();
+      setCalRefreshKey(k => k + 1);
     } catch {
       setErrorModal('Error al guardar. Intenta de nuevo.');
     } finally {
@@ -160,68 +165,109 @@ export const ReservasAdminPage = () => {
       <div className="flex-1 flex flex-col min-h-0">
         <Navbar />
         <div className="flex-1 overflow-y-auto">
-          <main className="p-6 max-w-5xl">
-            <div className="flex items-center justify-between mb-6">
+          <main className="p-6 max-w-6xl">
+            {/* ── Header ── */}
+            <div className="flex items-center justify-between mb-5">
               <h1 className="text-xl font-semibold text-ink-900">Gestión de reservas</h1>
-              <button
-                onClick={() => { setShowNueva(true); setErrorNueva(''); }}
-                className="btn-primary flex items-center gap-2 text-sm px-4 py-2"
-              >
-                <Plus size={16} strokeWidth={2} />
-                Registrar reserva
-              </button>
-            </div>
-
-            <div className="flex flex-wrap gap-3 mb-4">
-              <input
-                type="date"
-                value={filtroFecha}
-                onChange={(e) => setFiltroFecha(e.target.value)}
-                className="input-field max-w-xs"
-              />
-              {filtroFecha && (
-                <button onClick={() => setFiltroFecha('')} className="btn-secondary text-sm">
-                  Limpiar fecha
-                </button>
-              )}
-            </div>
-
-            <div className="flex gap-1.5 flex-wrap mb-6">
-              {ESTADOS_RESERVA.map((e) => (
+              <div className="flex items-center gap-2">
+                {/* Vista toggle */}
+                <div className="flex rounded-md border border-ink-200 overflow-hidden text-sm">
+                  <button
+                    onClick={() => setVista('calendario')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 transition-colors ${
+                      vista === 'calendario'
+                        ? 'bg-ink-900 text-white'
+                        : 'bg-white text-ink-600 hover:bg-ink-50'
+                    }`}
+                  >
+                    <CalendarDays size={14} strokeWidth={2} />
+                    Calendario
+                  </button>
+                  <button
+                    onClick={() => setVista('lista')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 border-l border-ink-200 transition-colors ${
+                      vista === 'lista'
+                        ? 'bg-ink-900 text-white'
+                        : 'bg-white text-ink-600 hover:bg-ink-50'
+                    }`}
+                  >
+                    <LayoutList size={14} strokeWidth={2} />
+                    Lista
+                  </button>
+                </div>
                 <button
-                  key={e.value}
-                  onClick={() => setFiltroEstado(e.value)}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                    filtroEstado === e.value
-                      ? 'bg-ink-900 text-white'
-                      : 'bg-white text-ink-600 border border-ink-200 hover:border-ink-300'
-                  }`}
+                  onClick={() => { setShowNueva(true); setErrorNueva(''); }}
+                  className="btn-primary flex items-center gap-2 text-sm px-4 py-2"
                 >
-                  {e.label}
+                  <Plus size={16} strokeWidth={2} />
+                  Registrar
                 </button>
-              ))}
+              </div>
             </div>
 
-            {isLoading ? (
-              <div className="flex justify-center py-16">
-                <LoadingSpinner size="lg" text="Cargando reservas..." />
-              </div>
-            ) : reservas.length === 0 ? (
-              <div className="card text-center py-12 text-ink-400">
-                <ClipboardList className="mx-auto mb-3" size={28} strokeWidth={1.5} />
-                <p className="text-sm">No hay reservas con este filtro</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {reservas.map((reserva) => (
-                  <ReservaCard
-                    key={reserva.id}
-                    reserva={reserva}
-                    showUsuario
-                    onCambiarEstado={abrirModal}
+            {/* ── Calendario ── */}
+            {vista === 'calendario' && (
+              <CalendarioReservas
+                onGestionar={abrirModal}
+                refreshKey={calRefreshKey}
+              />
+            )}
+
+            {/* ── Lista ── */}
+            {vista === 'lista' && (
+              <>
+                <div className="flex flex-wrap gap-3 mb-4">
+                  <input
+                    type="date"
+                    value={filtroFecha}
+                    onChange={(e) => setFiltroFecha(e.target.value)}
+                    className="input-field max-w-xs"
                   />
-                ))}
-              </div>
+                  {filtroFecha && (
+                    <button onClick={() => setFiltroFecha('')} className="btn-secondary text-sm">
+                      Limpiar fecha
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex gap-1.5 flex-wrap mb-6">
+                  {ESTADOS_RESERVA.map((e) => (
+                    <button
+                      key={e.value}
+                      onClick={() => setFiltroEstado(e.value)}
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        filtroEstado === e.value
+                          ? 'bg-ink-900 text-white'
+                          : 'bg-white text-ink-600 border border-ink-200 hover:border-ink-300'
+                      }`}
+                    >
+                      {e.label}
+                    </button>
+                  ))}
+                </div>
+
+                {isLoading ? (
+                  <div className="flex justify-center py-16">
+                    <LoadingSpinner size="lg" text="Cargando reservas..." />
+                  </div>
+                ) : reservas.length === 0 ? (
+                  <div className="card text-center py-12 text-ink-400">
+                    <ClipboardList className="mx-auto mb-3" size={28} strokeWidth={1.5} />
+                    <p className="text-sm">No hay reservas con este filtro</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {reservas.map((reserva) => (
+                      <ReservaCard
+                        key={reserva.id}
+                        reserva={reserva}
+                        showUsuario
+                        onCambiarEstado={abrirModal}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </main>
         </div>
