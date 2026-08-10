@@ -51,20 +51,16 @@ export class UploadsController {
         },
       }),
       limits: { fileSize: TAMANO_MAXIMO_BYTES },
-      fileFilter: (req, file, callback) => {
-        if (!EXTENSION_POR_MIME[file.mimetype]) {
-          return callback(
-            new BadRequestException('Solo se aceptan imágenes JPG, PNG o WEBP'),
-            false,
-          );
-        }
-        callback(null, true);
+      fileFilter: (_req, file, callback) => {
+        // Pass null (not a NestJS exception) so multer v2 propagates the rejection cleanly.
+        // The controller checks for undefined archivo and throws from there instead.
+        callback(null, !!EXTENSION_POR_MIME[file.mimetype]);
       },
     }),
   )
   subirImagen(@UploadedFile() archivo: Express.Multer.File) {
     if (!archivo) {
-      throw new BadRequestException('No se recibió ninguna imagen');
+      throw new BadRequestException('No se recibió ninguna imagen. Solo se aceptan JPG, PNG o WEBP (máx 5 MB)');
     }
 
     return {

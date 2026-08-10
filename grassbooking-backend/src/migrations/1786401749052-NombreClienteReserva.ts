@@ -11,16 +11,16 @@ export class NombreClienteReserva1786401749052 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       ALTER TABLE "reservas"
-        ADD COLUMN "nombre_cliente" character varying(150),
-        ADD COLUMN "telefono_cliente" character varying(20)
+        ADD COLUMN IF NOT EXISTS "nombre_cliente" character varying(150),
+        ADD COLUMN IF NOT EXISTS "telefono_cliente" character varying(20)
     `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       ALTER TABLE "reservas"
-        DROP COLUMN "nombre_cliente",
-        DROP COLUMN "telefono_cliente"
+        DROP COLUMN IF EXISTS "nombre_cliente",
+        DROP COLUMN IF EXISTS "telefono_cliente"
     `);
   }
 }
