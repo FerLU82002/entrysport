@@ -50,11 +50,6 @@ export const reservasService = {
     return res.data;
   },
 
-  async cancelar(id: number) {
-    const res = await api.patch<ApiResponse<Reserva>>(`/reservas/${id}/cancelar`);
-    return res.data;
-  },
-
   async cambiarEstado(id: number, estado: EstadoReserva, notas?: string) {
     const res = await api.patch<ApiResponse<Reserva>>(`/reservas/${id}/estado`, {
       estado,

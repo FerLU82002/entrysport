@@ -1,14 +1,11 @@
 import { User, CalendarDays, Clock, CreditCard, Download } from 'lucide-react';
 import { Reserva, ESTADO_COLORES, ESTADO_LABELS } from '../../types';
-import { LoadingSpinner } from '../common/LoadingSpinner';
-import { format, parseISO, differenceInHours } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { descargarTicketReserva } from '../../utils/ticketDownload';
 
 interface Props {
   reserva: Reserva;
-  onCancelar?: (id: number) => void;
-  cancelando?: boolean;
   showUsuario?: boolean;
   onCambiarEstado?: (reserva: Reserva) => void;
   onPagar?: (reserva: Reserva) => void;
@@ -16,8 +13,6 @@ interface Props {
 
 export const ReservaCard = ({
   reserva,
-  onCancelar,
-  cancelando,
   showUsuario,
   onCambiarEstado,
   onPagar,
@@ -25,12 +20,6 @@ export const ReservaCard = ({
   // PostgreSQL devuelve TIME como "HH:MM:SS" — tomar solo "HH:MM"
   const horaInicioLimpia = reserva.horaInicio.substring(0, 5);
   const horaFinLimpia = reserva.horaFin.substring(0, 5);
-
-  const fechaHoraReserva = new Date(`${reserva.fechaReserva}T${horaInicioLimpia}:00`);
-  const puedesCancelar =
-    reserva.estado !== 'cancelada' &&
-    reserva.estado !== 'completada' &&
-    differenceInHours(fechaHoraReserva, new Date()) >= 2;
 
   const horaNum = parseInt(horaInicioLimpia.split(':')[0]);
   const horaFinNum = parseInt(horaFinLimpia.split(':')[0]);
@@ -117,21 +106,6 @@ export const ReservaCard = ({
           <button onClick={() => onPagar(reserva)} className="btn-primary text-sm py-1.5 px-3 flex items-center gap-1.5">
             <CreditCard size={14} strokeWidth={1.75} />
             Pagar ahora
-          </button>
-        )}
-        {onCancelar && puedesCancelar && (
-          <button
-            onClick={() => onCancelar(reserva.id)}
-            disabled={cancelando}
-            className="btn-danger text-sm py-1.5 px-3"
-          >
-            {cancelando ? (
-              <span className="flex items-center gap-1">
-                <LoadingSpinner size="sm" /> Cancelando...
-              </span>
-            ) : (
-              'Cancelar reserva'
-            )}
           </button>
         )}
         {onCambiarEstado && (

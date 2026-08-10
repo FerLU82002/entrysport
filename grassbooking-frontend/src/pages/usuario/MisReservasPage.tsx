@@ -7,8 +7,6 @@ import { ReservaCard } from '../../components/reservas/ReservaCard';
 import { PagoModal } from '../../components/reservas/PagoModal';
 import { useReservas } from '../../hooks/useReservas';
 import { EstadoReserva, Reserva } from '../../types';
-import { reservasService } from '../../services/reservas.service';
-import axios from 'axios';
 
 const ESTADOS: { value: EstadoReserva | 'todas'; label: string }[] = [
   { value: 'todas', label: 'Todas' },
@@ -22,8 +20,6 @@ export const MisReservasPage = () => {
   const location = useLocation();
   const { reservas, isLoading, recargar } = useReservas();
   const [filtroEstado, setFiltroEstado] = useState<EstadoReserva | 'todas'>('todas');
-  const [cancelando, setCancelando] = useState<number | null>(null);
-  const [error, setError] = useState('');
   const [reservaAPagar, setReservaAPagar] = useState<Reserva | null>(null);
 
   const reservaCreada = location.state?.reservaCreada;
@@ -32,26 +28,6 @@ export const MisReservasPage = () => {
     filtroEstado === 'todas'
       ? reservas
       : reservas.filter((r) => r.estado === filtroEstado);
-
-  const handleCancelar = async (id: number) => {
-    if (!confirm('¿Seguro que deseas cancelar esta reserva?')) return;
-
-    setCancelando(id);
-    setError('');
-
-    try {
-      await reservasService.cancelar(id);
-      recargar();
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || 'Error al cancelar');
-      } else {
-        setError('Error inesperado');
-      }
-    } finally {
-      setCancelando(null);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-ink-50">
@@ -62,12 +38,6 @@ export const MisReservasPage = () => {
         {reservaCreada && (
           <div className="bg-brand-50 border border-brand-200 text-brand-800 text-sm px-4 py-3 rounded-md mb-4">
             Reserva creada exitosamente. Recibirás confirmación pronto.
-          </div>
-        )}
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-md mb-4">
-            {error}
           </div>
         )}
 
@@ -102,8 +72,6 @@ export const MisReservasPage = () => {
               <ReservaCard
                 key={reserva.id}
                 reserva={reserva}
-                onCancelar={handleCancelar}
-                cancelando={cancelando === reserva.id}
                 onPagar={setReservaAPagar}
               />
             ))}

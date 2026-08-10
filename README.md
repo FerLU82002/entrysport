@@ -100,7 +100,6 @@ VITE_API_URL=http://localhost:3000/api
 | GET | /api/horarios/disponibilidad | Público |
 | GET | /api/reservas | Usuario |
 | POST | /api/reservas | Usuario |
-| PATCH | /api/reservas/:id/cancelar | Usuario |
 | GET | /api/reservas/todas | Admin |
 | GET | /api/reportes/ocupacion | Admin |
 | GET | /api/reportes/ingresos | Admin |

@@ -207,46 +207,6 @@ export class ReservasService {
     return { data: reservaGuardada, message: 'Reserva creada exitosamente' };
   }
 
-  async cancelarPorUsuario(id: number, userId: number) {
-    const reserva = await this.reservasRepository.findOne({
-      where: { id, idUsuario: userId },
-    });
-
-    if (!reserva) {
-      throw new NotFoundException('Reserva no encontrada');
-    }
-
-    if (reserva.estado === 'cancelada') {
-      throw new BadRequestException('La reserva ya está cancelada');
-    }
-
-    const ahora = new Date();
-    const fechaHoraReserva = new Date(
-      `${reserva.fechaReserva}T${reserva.horaInicio}:00`,
-    );
-    const diferenciaHoras =
-      (fechaHoraReserva.getTime() - ahora.getTime()) / (1000 * 60 * 60);
-
-    if (diferenciaHoras < 2) {
-      throw new ForbiddenException(
-        'Solo puedes cancelar con al menos 2 horas de anticipación',
-      );
-    }
-
-    reserva.estado = 'cancelada';
-    await this.reservasRepository.save(reserva);
-
-    const notificacion = this.notificacionesRepository.create({
-      idUsuario: userId,
-      idReserva: id,
-      tipo: 'cancelacion',
-      mensaje: `Tu reserva del ${reserva.fechaReserva} a las ${reserva.horaInicio} ha sido cancelada`,
-    });
-    await this.notificacionesRepository.save(notificacion);
-
-    return { data: reserva, message: 'Reserva cancelada exitosamente' };
-  }
-
   async cambiarEstado(id: number, updateDto: UpdateEstadoReservaDto, idLocal?: number) {
     const reserva = await this.reservasRepository.findOne({
       where: { id },

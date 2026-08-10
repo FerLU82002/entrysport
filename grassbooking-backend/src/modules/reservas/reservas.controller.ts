@@ -91,12 +91,6 @@ export class ReservasController {
     return this.reservasService.createManual(dto, req.user.id, idLocal);
   }
 
-  @Patch(':id/cancelar')
-  @ApiOperation({ summary: 'Cancelar reserva (≥2h antes) [USUARIO]' })
-  cancelar(@Param('id', ParseIntPipe) id: number, @Request() req: ReqUser) {
-    return this.reservasService.cancelarPorUsuario(id, req.user.id);
-  }
-
   @Patch(':id/estado')
   @UseGuards(RolesGuard)
   @Roles('super_admin', 'admin_local')
