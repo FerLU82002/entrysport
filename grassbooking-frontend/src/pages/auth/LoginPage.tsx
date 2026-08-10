@@ -26,6 +26,7 @@ export const LoginPage = () => {
   const [error, setError] = useState('');
 
   const loginConGoogle = () => {
+    if (from) sessionStorage.setItem('loginRedirectAfter', from);
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: COGNITO_CLIENT_ID,

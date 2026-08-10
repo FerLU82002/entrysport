@@ -27,9 +27,17 @@ export const CognitoCallbackPage = () => {
         localStorage.setItem('chocolaterospe_token', token);
         localStorage.setItem('chocolaterospe_user', JSON.stringify(usuario));
 
-        if (usuario.rol === 'super_admin') window.location.href = '/superadmin';
-        else if (usuario.rol === 'admin_local') window.location.href = '/admin';
-        else window.location.href = '/dashboard';
+        const redirectAfter = sessionStorage.getItem('loginRedirectAfter');
+        sessionStorage.removeItem('loginRedirectAfter');
+        if (redirectAfter) {
+          window.location.href = redirectAfter;
+        } else if (usuario.rol === 'super_admin') {
+          window.location.href = '/superadmin';
+        } else if (usuario.rol === 'admin_local') {
+          window.location.href = '/admin';
+        } else {
+          window.location.href = '/dashboard';
+        }
       })
       .catch(() => {
         setError('Error al iniciar sesión con Cognito. Intenta de nuevo.');
