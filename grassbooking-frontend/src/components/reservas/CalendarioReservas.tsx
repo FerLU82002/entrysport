@@ -151,7 +151,7 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
           <LoadingSpinner text="Cargando reservas..." />
         </div>
       ) : (
-        <div className="rounded-lg border border-ink-100 bg-white">
+        <div className="rounded-lg border border-ink-100 bg-white overflow-hidden">
 
           {/*
            * DAY HEADER — lives OUTSIDE the body scroll container.
