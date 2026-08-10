@@ -490,13 +490,24 @@ export const ReservasAdminPage = () => {
               {/* Slots disponibles */}
               {nueva.idCancha > 0 && nueva.fechaReserva && (
                 <div>
-                  <label className="block text-sm font-medium text-ink-700 mb-1.5">Hora disponible</label>
+                  <label className="block text-sm font-medium text-ink-700 mb-1.5">Hora</label>
                   {cargandoSlots ? (
                     <div className="flex items-center gap-2 text-ink-400 text-sm">
                       <RefreshCw size={14} className="animate-spin" /> Cargando horarios...
                     </div>
                   ) : slots.length === 0 ? (
-                    <p className="text-sm text-ink-400">Sin horarios configurados para este día.</p>
+                    /* Sin horarios configurados: ingreso libre entre 08:00–23:00 */
+                    <div>
+                      <input
+                        type="time"
+                        min="08:00"
+                        max="23:00"
+                        className="input-field"
+                        value={nueva.horaInicio}
+                        onChange={(e) => setNueva((p) => ({ ...p, horaInicio: e.target.value }))}
+                      />
+                      <p className="text-xs text-ink-400 mt-1">Ingresa la hora manualmente (08:00 – 23:00)</p>
+                    </div>
                   ) : (
                     <div className="grid grid-cols-4 gap-1.5">
                       {slots.map((s) => (
