@@ -228,115 +228,158 @@ export const ReservasAdminPage = () => {
       </div>
 
       {/* ── Modal: gestionar reserva existente ── */}
-      {modalReserva && (
-        <div className="fixed inset-0 bg-ink-900/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg border border-ink-100">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-base font-semibold text-ink-900">Gestionar reserva</h3>
-              <button onClick={() => setModalReserva(null)} className="text-ink-400 hover:text-ink-700">
-                <X size={18} strokeWidth={1.75} />
-              </button>
-            </div>
+      {modalReserva && (() => {
+        const montoTotal = Number(modalReserva.montoTotal);
+        const montoPago = modalReserva.pago?.monto != null ? Number(modalReserva.pago.monto) : montoTotal;
+        const hayAdelanto = montoPago > 0 && montoPago < montoTotal;
+        const faltante = Number((montoTotal - montoPago).toFixed(2));
+        return (
+          <div className="fixed inset-0 bg-ink-900/40 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg border border-ink-100">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-base font-semibold text-ink-900">Gestionar reserva</h3>
+                <button onClick={() => setModalReserva(null)} className="text-ink-400 hover:text-ink-700">
+                  <X size={18} strokeWidth={1.75} />
+                </button>
+              </div>
 
-            <div className="bg-ink-50 rounded-md p-3 mb-5 text-sm space-y-1">
-              <p className="text-ink-500">
-                Código: <span className="font-mono font-medium text-ink-700">
-                  #{modalReserva.codigoReserva?.slice(0, 8).toUpperCase()}
-                </span>
-              </p>
-              <p className="text-ink-500">
-                Cliente: <span className="font-medium text-ink-700">
-                  {modalReserva.usuario?.nombre ?? '—'}
-                </span>
-              </p>
-              <p className="text-ink-500">
-                Fecha: <span className="font-medium text-ink-700">
-                  {modalReserva.fechaReserva} · {modalReserva.horaInicio.substring(0, 5)}–{modalReserva.horaFin.substring(0, 5)}
-                </span>
-              </p>
-              <p className="text-ink-500">
-                Monto: <span className="font-semibold text-ink-900">
-                  S/ {Number(modalReserva.montoTotal).toFixed(2)}
-                </span>
-              </p>
-            </div>
+              {/* Info + cobro resumido */}
+              <div className="bg-ink-50 rounded-md p-3 mb-5 text-sm space-y-1">
+                <p className="text-ink-500">
+                  Código: <span className="font-mono font-medium text-ink-700">
+                    #{modalReserva.codigoReserva?.slice(0, 8).toUpperCase()}
+                  </span>
+                </p>
+                <p className="text-ink-500">
+                  Cliente: <span className="font-medium text-ink-700">
+                    {modalReserva.usuario?.nombre ?? '—'}
+                  </span>
+                </p>
+                <p className="text-ink-500">
+                  Fecha: <span className="font-medium text-ink-700">
+                    {modalReserva.fechaReserva} · {modalReserva.horaInicio.substring(0, 5)}–{modalReserva.horaFin.substring(0, 5)}
+                  </span>
+                </p>
+                <div className="border-t border-ink-200 my-1.5" />
+                {hayAdelanto ? (
+                  <>
+                    <p className="text-ink-500">
+                      Adelanto recibido:{' '}
+                      <span className="font-medium text-green-700">S/ {montoPago.toFixed(2)}</span>
+                    </p>
+                    <p className="text-ink-500">
+                      Falta cobrar al llegar:{' '}
+                      <span className="font-semibold text-amber-700">S/ {faltante.toFixed(2)}</span>
+                    </p>
+                    <p className="text-ink-400 text-xs">Total reserva: S/ {montoTotal.toFixed(2)}</p>
+                  </>
+                ) : (
+                  <p className="text-ink-500">
+                    Total: <span className="font-semibold text-ink-900">S/ {montoTotal.toFixed(2)}</span>
+                  </p>
+                )}
+              </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-ink-700 mb-1.5">Estado de la reserva</label>
-              <select
-                value={nuevoEstado}
-                onChange={(e) => setNuevoEstado(e.target.value as EstadoReserva)}
-                className="input-field"
-              >
-                <option value="pendiente">Pendiente</option>
-                <option value="confirmada">Confirmada</option>
-                <option value="cancelada">Cancelada</option>
-                <option value="completada">Completada</option>
-                <option value="no_asistio">No asistió</option>
-              </select>
-            </div>
+              {/* Estado */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-ink-700 mb-1.5">Estado de la reserva</label>
+                <select
+                  value={nuevoEstado}
+                  onChange={(e) => setNuevoEstado(e.target.value as EstadoReserva)}
+                  className="input-field"
+                >
+                  <option value="pendiente">Pendiente</option>
+                  <option value="confirmada">Confirmada</option>
+                  <option value="cancelada">Cancelada</option>
+                  <option value="completada">Completada</option>
+                  <option value="no_asistio">No asistió</option>
+                </select>
+              </div>
 
-            <div className="border-t border-ink-100 my-4" />
+              <div className="border-t border-ink-100 my-4" />
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-ink-700 mb-1.5">Estado del pago</label>
-              <div className="flex gap-2">
-                {(['pendiente', 'pagado', 'reembolsado'] as EstadoPago[]).map((ep) => (
+              {/* Cobro */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-ink-700 mb-1.5">
+                  {hayAdelanto ? 'El cliente pagó el resto al llegar' : 'Cobro'}
+                </label>
+                <div className="flex gap-2">
                   <button
-                    key={ep}
                     type="button"
-                    onClick={() => setEstadoPago(ep)}
+                    onClick={() => setEstadoPago('pendiente')}
                     className={`flex-1 py-2 rounded-md text-sm font-medium border transition-colors ${
-                      estadoPago === ep
+                      estadoPago === 'pendiente'
                         ? 'bg-ink-900 text-white border-ink-900'
                         : 'bg-white text-ink-600 border-ink-200 hover:border-ink-300'
                     }`}
                   >
-                    {ep === 'pendiente' ? 'Pendiente' : ep === 'pagado' ? 'Pagado' : 'Reembolsado'}
+                    {hayAdelanto ? 'Aún no' : 'Sin cobrar'}
                   </button>
-                ))}
-              </div>
-            </div>
-
-            {estadoPago === 'pagado' && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-ink-700 mb-1.5">Método de pago</label>
-                <div className="flex flex-wrap gap-2">
-                  {METODOS_PAGO.map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setMetodoPago(m)}
-                      className={`px-3 py-1.5 rounded-md text-sm capitalize border transition-colors ${
-                        metodoPago === m
-                          ? 'bg-ink-900 text-white border-ink-900'
-                          : 'bg-white text-ink-600 border-ink-200 hover:border-ink-300'
-                      }`}
-                    >
-                      {m}
-                    </button>
-                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setEstadoPago('pagado')}
+                    className={`flex-1 py-2 rounded-md text-sm font-medium border transition-colors ${
+                      estadoPago === 'pagado'
+                        ? 'bg-green-700 text-white border-green-700'
+                        : 'bg-white text-ink-600 border-ink-200 hover:border-ink-300'
+                    }`}
+                  >
+                    {hayAdelanto ? 'Sí, cobrado' : 'Cobrado'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEstadoPago('reembolsado')}
+                    className={`flex-1 py-2 rounded-md text-sm font-medium border transition-colors ${
+                      estadoPago === 'reembolsado'
+                        ? 'bg-ink-900 text-white border-ink-900'
+                        : 'bg-white text-ink-600 border-ink-200 hover:border-ink-300'
+                    }`}
+                  >
+                    Reembolsado
+                  </button>
                 </div>
               </div>
-            )}
 
-            {errorModal && <p className="text-red-600 text-sm mb-3">{errorModal}</p>}
+              {estadoPago === 'pagado' && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-ink-700 mb-1.5">¿Cómo pagó?</label>
+                  <div className="flex flex-wrap gap-2">
+                    {METODOS_PAGO.map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setMetodoPago(m)}
+                        className={`px-3 py-1.5 rounded-md text-sm capitalize border transition-colors ${
+                          metodoPago === m
+                            ? 'bg-ink-900 text-white border-ink-900'
+                            : 'bg-white text-ink-600 border-ink-200 hover:border-ink-300'
+                        }`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-            <div className="flex gap-3 mt-2">
-              <button onClick={handleGuardar} disabled={actualizando} className="flex-1 btn-primary py-2.5">
-                {actualizando ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <LoadingSpinner size="sm" /> Guardando...
-                  </span>
-                ) : 'Guardar cambios'}
-              </button>
-              <button onClick={() => setModalReserva(null)} className="flex-1 btn-secondary py-2.5">
-                Cancelar
-              </button>
+              {errorModal && <p className="text-red-600 text-sm mb-3">{errorModal}</p>}
+
+              <div className="flex gap-3 mt-2">
+                <button onClick={handleGuardar} disabled={actualizando} className="flex-1 btn-primary py-2.5">
+                  {actualizando ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <LoadingSpinner size="sm" /> Guardando...
+                    </span>
+                  ) : 'Guardar cambios'}
+                </button>
+                <button onClick={() => setModalReserva(null)} className="flex-1 btn-secondary py-2.5">
+                  Cancelar
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ── Modal: nueva reserva manual ── */}
       {showNueva && (
