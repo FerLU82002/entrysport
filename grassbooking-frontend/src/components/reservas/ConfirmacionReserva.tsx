@@ -47,7 +47,6 @@ export const ConfirmacionReserva = ({
 
   const hayDescuento = descuentoPct > 0;
   const pagoPartial = adelantoPct > 0 && adelantoPct < 100;
-  const pagaTodo = adelantoPct >= 100;
   const pagaAlLlegar = adelantoPct === 0;
 
   return (
