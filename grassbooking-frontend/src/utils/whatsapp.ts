@@ -15,15 +15,19 @@ export const construirEnlaceWhatsapp = (telefono: string, mensaje: string): stri
   return `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
 };
 
-export const construirMensajeComprobante = (reserva: Reserva): string => {
+export const construirMensajeComprobante = (reserva: Reserva, montoAPagar?: number): string => {
   const fecha = format(parseISO(reserva.fechaReserva), "EEEE d 'de' MMMM", { locale: es });
+  const monto = montoAPagar ?? Number(reserva.montoTotal);
+  const esAdelanto = montoAPagar != null && montoAPagar < Number(reserva.montoTotal);
   const lineas = [
     'Hola, quiero enviar el comprobante de pago de mi reserva:',
     '',
     `Cancha: ${reserva.cancha?.nombre ?? `#${reserva.idCancha}`}`,
     `Fecha: ${fecha}`,
     `Hora: ${reserva.horaInicio.substring(0, 5)} - ${reserva.horaFin.substring(0, 5)}`,
-    `Monto: S/ ${Number(reserva.montoTotal).toFixed(2)}`,
+    esAdelanto
+      ? `Adelanto pagado: S/ ${monto.toFixed(2)} (total reserva: S/ ${Number(reserva.montoTotal).toFixed(2)})`
+      : `Monto: S/ ${monto.toFixed(2)}`,
     `Código de reserva: ${reserva.codigoReserva?.slice(0, 8).toUpperCase()}`,
     '',
     'Adjunto la captura del pago por Yape a continuación.',

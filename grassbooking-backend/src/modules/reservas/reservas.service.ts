@@ -191,7 +191,7 @@ export class ReservasService {
       monto: montoAdelanto,
       estadoPago: 'pendiente',
     });
-    await this.pagosRepository.save(pago);
+    const pagoGuardado = await this.pagosRepository.save(pago);
 
     const notificacion = this.notificacionesRepository.create({
       idUsuario: userId,
@@ -202,6 +202,7 @@ export class ReservasService {
     await this.notificacionesRepository.save(notificacion);
 
     reservaGuardada.cancha = cancha;
+    reservaGuardada.pago = pagoGuardado;
 
     return { data: reservaGuardada, message: 'Reserva creada exitosamente' };
   }

@@ -37,6 +37,11 @@ interface Props {
 export const PagoModal = ({ reserva, onClose, onPagado }: Props) => {
   const { usuario } = useAuth();
   const [config, setConfig] = useState<ConfiguracionPagoPublica | null>(null);
+
+  const montoTotal = Number(reserva.montoTotal);
+  const montoAhora = reserva.pago?.monto != null
+    ? Number(reserva.pago.monto)
+    : montoTotal;
   const [mercadopagoConectado, setMercadopagoConectado] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [procesando, setProcesando] = useState<'culqi' | 'mercadopago' | null>(null);
@@ -82,7 +87,7 @@ export const PagoModal = ({ reserva, onClose, onPagado }: Props) => {
       window.Culqi.settings({
         title: reserva.cancha?.nombre || 'Reserva',
         currency: config.moneda || 'PEN',
-        amount: Math.round(Number(reserva.montoTotal) * 100),
+        amount: Math.round(montoAhora * 100),
       });
 
       window.culqi = async () => {
@@ -143,13 +148,16 @@ export const PagoModal = ({ reserva, onClose, onPagado }: Props) => {
           </button>
         </div>
 
-        <div className="bg-ink-50 rounded-md p-3 mb-5 text-sm">
+        <div className="bg-ink-50 rounded-md p-3 mb-5 text-sm space-y-1">
           <p className="text-ink-500">
-            Monto a pagar:{' '}
-            <span className="font-semibold text-ink-900">
-              S/ {Number(reserva.montoTotal).toFixed(2)}
-            </span>
+            {montoAhora < montoTotal ? 'Adelanto a pagar ahora:' : 'Monto a pagar:'}{' '}
+            <span className="font-semibold text-ink-900">S/ {montoAhora.toFixed(2)}</span>
           </p>
+          {montoAhora < montoTotal && (
+            <p className="text-xs text-ink-400">
+              Total reserva: S/ {montoTotal.toFixed(2)} · Resto al llegar: S/ {(montoTotal - montoAhora).toFixed(2)}
+            </p>
+          )}
         </div>
 
         {isLoading ? (
@@ -200,7 +208,7 @@ export const PagoModal = ({ reserva, onClose, onPagado }: Props) => {
                       Escanea el QR, paga desde tu app y envía tu comprobante por WhatsApp.
                     </p>
                     <a
-                      href={construirEnlaceWhatsapp(config.yapeTelefono, construirMensajeComprobante(reserva))}
+                      href={construirEnlaceWhatsapp(config.yapeTelefono, construirMensajeComprobante(reserva, montoAhora))}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn-primary w-full mt-3 flex items-center justify-center gap-2"
