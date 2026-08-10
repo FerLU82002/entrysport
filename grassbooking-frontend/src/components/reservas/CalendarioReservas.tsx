@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Reserva, EstadoReserva } from '../../types';
 import { reservasService } from '../../services/reservas.service';
@@ -27,9 +27,9 @@ const ESTADO_LABELS: Record<EstadoReserva, string> = {
   no_asistio: 'No asistió',
 };
 
-// Column layout shared between header and body
-const COL = '48px repeat(7, minmax(68px, 1fr))';
-const MIN_W = 544; // 48 + 7*68 ≈ 544
+// Adaptive grid: hour column fixed (40px) + 7 day columns that share remaining space.
+// minmax(0, 1fr) lets columns shrink to 0 — all 7 days always fit on any screen width.
+const COL = '40px repeat(7, minmax(0, 1fr))';
 
 // ── helpers ──────────────────────────────────────────────────────────────
 
@@ -60,10 +60,6 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
   const [reservas, setReservas] = useState<Reserva[]>([]);
   const [cargando, setCargando] = useState(true);
 
-  // Refs for syncing header ↔ body horizontal scroll
-  const headerRef = useRef<HTMLDivElement>(null);
-  const bodyRef   = useRef<HTMLDivElement>(null);
-
   const dias        = semanaDesde(offset);
   const semanaLabel = `${format(dias[0], "d MMM", { locale: es })} – ${format(dias[6], "d MMM yyyy", { locale: es })}`;
 
@@ -74,13 +70,6 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
       .catch(() => {})
       .finally(() => setCargando(false));
   }, [refreshKey]);
-
-  // When body scrolls horizontally → mirror into header
-  const onBodyScroll = () => {
-    if (headerRef.current && bodyRef.current) {
-      headerRef.current.scrollLeft = bodyRef.current.scrollLeft;
-    }
-  };
 
   const celdaReservas = (dia: Date, hora: number): Reserva[] =>
     reservas.filter(r =>
@@ -154,123 +143,102 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
         <div className="rounded-lg border border-ink-100 bg-white overflow-hidden">
 
           {/*
-           * DAY HEADER — lives OUTSIDE the body scroll container.
-           * overflow: hidden so no scrollbar; scrollLeft is driven by JS.
-           * This avoids the "overflow-x-auto breaks sticky top-0" bug.
+           * Day header row — sits OUTSIDE the hour rows so it can be sticky
+           * at the page scroll level. Uses the same COL grid as hour rows.
            */}
           <div
-            ref={headerRef}
-            className="border-b border-ink-200 bg-white rounded-t-lg"
-            style={{ overflowX: 'hidden' }}
+            className="grid border-b border-ink-200 bg-white"
+            style={{ gridTemplateColumns: COL }}
           >
-            <div
-              className="grid"
-              style={{ gridTemplateColumns: COL, minWidth: MIN_W }}
-            >
-              {/* Corner */}
-              <div className="border-r border-ink-100 h-12" />
+            {/* Corner cell */}
+            <div className="border-r border-ink-100 h-11" />
 
-              {dias.map((dia, i) => {
+            {dias.map((dia, i) => {
+              const esHoy   = isToday(dia);
+              const hasPend = reservas.some(
+                r => r.fechaReserva === toDateStr(dia) && r.estado === 'pendiente',
+              );
+              return (
+                <div
+                  key={i}
+                  className={`py-1.5 text-center border-r border-ink-100 last:border-r-0 relative ${
+                    esHoy ? 'bg-ink-900' : ''
+                  }`}
+                >
+                  <p className={`text-[9px] sm:text-[10px] font-semibold uppercase tracking-wide ${
+                    esHoy ? 'text-ink-400' : 'text-ink-400'
+                  }`}>
+                    {DIAS[i]}
+                  </p>
+                  <p className={`text-xs sm:text-sm font-bold leading-none mt-0.5 ${
+                    esHoy ? 'text-white' : 'text-ink-800'
+                  }`}>
+                    {format(dia, 'd')}
+                  </p>
+                  {hasPend && !esHoy && (
+                    <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Hour rows */}
+          {HORAS.map(hora => (
+            <div
+              key={hora}
+              className="grid border-b border-ink-50 last:border-b-0"
+              style={{ gridTemplateColumns: COL, minHeight: 58 }}
+            >
+              {/* Hour label */}
+              <div className="flex items-start justify-end pr-1.5 pt-1.5 border-r border-ink-100 shrink-0">
+                <span className="text-[10px] text-ink-400 tabular-nums leading-none">
+                  {hora}:00
+                </span>
+              </div>
+
+              {/* Day cells */}
+              {dias.map((dia, di) => {
+                const items   = celdaReservas(dia, hora);
                 const esHoy   = isToday(dia);
-                const hasPend = reservas.some(
-                  r => r.fechaReserva === toDateStr(dia) && r.estado === 'pendiente',
-                );
+                const visible = items.slice(0, 2);
+                const extras  = items.length - visible.length;
+
                 return (
                   <div
-                    key={i}
-                    className={`py-2 text-center border-r border-ink-100 last:border-r-0 relative ${
-                      esHoy ? 'bg-ink-900' : ''
+                    key={di}
+                    className={`p-0.5 border-r border-ink-50 last:border-r-0 space-y-0.5 min-w-0 ${
+                      esHoy ? 'bg-ink-50/40' : ''
                     }`}
                   >
-                    <p className={`text-[10px] font-semibold uppercase tracking-wide ${
-                      esHoy ? 'text-ink-400' : 'text-ink-400'
-                    }`}>
-                      {DIAS[i]}
-                    </p>
-                    <p className={`text-sm font-bold leading-none mt-0.5 ${
-                      esHoy ? 'text-white' : 'text-ink-800'
-                    }`}>
-                      {format(dia, 'd')}
-                    </p>
-                    {hasPend && !esHoy && (
-                      <span className="absolute top-1 right-1.5 w-1.5 h-1.5 rounded-full bg-amber-400" />
+                    {visible.map(r => (
+                      <button
+                        key={r.id}
+                        onClick={() => onGestionar(r)}
+                        title={`${nombreCliente(r)} · ${ESTADO_LABELS[r.estado]}`}
+                        className={`w-full text-left rounded text-[10px] px-1 py-0.5 leading-tight min-w-0 ${PILL[r.estado]}`}
+                      >
+                        <span className="block truncate font-medium">
+                          {nombreCliente(r)}
+                        </span>
+                        <span className="block text-[9px] opacity-60 tabular-nums">
+                          {r.horaInicio.substring(0, 5)}
+                        </span>
+                      </button>
+                    ))}
+                    {extras > 0 && (
+                      <button
+                        onClick={() => onGestionar(items[2])}
+                        className="text-[9px] text-ink-400 hover:text-ink-700 block w-full text-left px-0.5"
+                      >
+                        +{extras}
+                      </button>
                     )}
                   </div>
                 );
               })}
             </div>
-          </div>
-
-          {/*
-           * BODY — only overflow-x: auto (horizontal scroll).
-           * Vertical scroll is handled by the PAGE, not nested here.
-           * sticky left-0 on hour column WORKS with overflow-x-auto.
-           * onScroll syncs the header above.
-           */}
-          <div
-            ref={bodyRef}
-            className="overflow-x-auto rounded-b-lg"
-            onScroll={onBodyScroll}
-            style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
-          >
-            <div style={{ minWidth: MIN_W }}>
-              {HORAS.map(hora => (
-                <div
-                  key={hora}
-                  className="grid border-b border-ink-50 last:border-b-0"
-                  style={{ gridTemplateColumns: COL, minHeight: 62 }}
-                >
-                  {/* Hour label — sticky left: works with overflow-x-auto */}
-                  <div className="sticky left-0 bg-white z-10 flex items-start justify-end pr-2 pt-2 border-r border-ink-100 shrink-0">
-                    <span className="text-[11px] text-ink-400 tabular-nums leading-none">
-                      {hora}:00
-                    </span>
-                  </div>
-
-                  {/* Day cells */}
-                  {dias.map((dia, di) => {
-                    const items   = celdaReservas(dia, hora);
-                    const esHoy   = isToday(dia);
-                    const visible = items.slice(0, 2);
-                    const extras  = items.length - visible.length;
-
-                    return (
-                      <div
-                        key={di}
-                        className={`p-1 border-r border-ink-50 last:border-r-0 space-y-0.5 ${
-                          esHoy ? 'bg-ink-50/40' : ''
-                        }`}
-                      >
-                        {visible.map(r => (
-                          <button
-                            key={r.id}
-                            onClick={() => onGestionar(r)}
-                            title={`${nombreCliente(r)} · ${ESTADO_LABELS[r.estado]}`}
-                            className={`w-full text-left rounded text-[11px] px-1.5 py-1 leading-tight ${PILL[r.estado]}`}
-                          >
-                            <span className="block truncate font-medium">
-                              {nombreCliente(r)}
-                            </span>
-                            <span className="block text-[10px] opacity-60 tabular-nums">
-                              {r.horaInicio.substring(0, 5)}–{r.horaFin.substring(0, 5)}
-                            </span>
-                          </button>
-                        ))}
-                        {extras > 0 && (
-                          <button
-                            onClick={() => onGestionar(items[2])}
-                            className="text-[10px] text-ink-400 hover:text-ink-700 block w-full text-left px-1 py-0.5"
-                          >
-                            +{extras} más
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
       )}
     </div>

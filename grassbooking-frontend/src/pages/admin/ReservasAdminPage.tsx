@@ -164,7 +164,7 @@ export const ReservasAdminPage = () => {
       </div>
       <div className="flex-1 flex flex-col min-h-0 min-w-0">
         <Navbar />
-        <div className="flex-1 overflow-y-auto min-w-0">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
           <main className="px-4 py-4 sm:px-6 sm:py-6 max-w-6xl w-full">
             {/* ── Header ── */}
             <div className="flex items-center justify-between gap-2 mb-4">
