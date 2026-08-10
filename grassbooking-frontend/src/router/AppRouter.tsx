@@ -23,6 +23,7 @@ import { HorariosPage } from '../pages/admin/HorariosPage';
 import { ReservasAdminPage } from '../pages/admin/ReservasAdminPage';
 import { ReportesPage } from '../pages/admin/ReportesPage';
 import { ExcepcionesPage } from '../pages/admin/ExcepcionesPage';
+import { MarketingPage } from '../pages/admin/MarketingPage';
 
 import { DashboardSuperAdmin } from '../pages/superadmin/DashboardSuperAdmin';
 import { LocalesAdminPage } from '../pages/superadmin/LocalesAdminPage';
@@ -80,6 +81,7 @@ export const AppRouter = () => {
         <Route path="/admin/reservas" element={<ReservasAdminPage />} />
         <Route path="/admin/reportes" element={<ReportesPage />} />
         <Route path="/admin/excepciones" element={<ExcepcionesPage />} />
+        <Route path="/admin/marketing" element={<MarketingPage />} />
       </Route>
 
       <Route element={<ProtectedRoute roles={['super_admin']} />}>

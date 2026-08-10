@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString, MaxLength, Matches } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, MaxLength, Matches, IsNumber, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateConfiguracionPagoDto {
@@ -43,4 +43,18 @@ export class UpdateConfiguracionPagoDto {
   @IsString()
   @Matches(/^[0-9+\s-]{6,20}$/, { message: 'Número de celular inválido' })
   yapeTelefono?: string;
+
+  @ApiProperty({ required: false, description: 'Descuento automático (0-100%) sobre el precio de la cancha' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  descuentoPct?: number;
+
+  @ApiProperty({ required: false, description: 'Porcentaje del total que el usuario paga al reservar (0-100%). 100 = pago completo; 0 = paga todo al llegar.' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  adelantoPct?: number;
 }

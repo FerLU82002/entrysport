@@ -13,6 +13,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Megaphone,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -31,6 +32,7 @@ const adminLocalLinks: NavItem[] = [
   { to: '/admin/horarios', label: 'Horarios', icon: Clock },
   { to: '/admin/reportes', label: 'Reportes', icon: BarChart3 },
   { to: '/admin/excepciones', label: 'Fechas especiales', icon: Ban },
+  { to: '/admin/marketing', label: 'Marketing', icon: Megaphone },
 ];
 
 const superAdminLinks: NavItem[] = [

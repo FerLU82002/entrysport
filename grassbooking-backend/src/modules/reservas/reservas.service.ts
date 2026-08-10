@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Reserva } from './entities/reserva.entity';
 import { Cancha } from '../canchas/entities/cancha.entity';
+import { ConfiguracionPago } from '../locales/entities/configuracion-pago.entity';
 import { Notificacion } from '../notificaciones/entities/notificacion.entity';
 import { Pago } from '../pagos/entities/pago.entity';
 import { CreateReservaDto } from './dto/create-reserva.dto';
@@ -21,6 +22,8 @@ export class ReservasService {
     private reservasRepository: Repository<Reserva>,
     @InjectRepository(Cancha)
     private canchasRepository: Repository<Cancha>,
+    @InjectRepository(ConfiguracionPago)
+    private configPagoRepository: Repository<ConfiguracionPago>,
     @InjectRepository(Notificacion)
     private notificacionesRepository: Repository<Notificacion>,
     @InjectRepository(Pago)
@@ -155,9 +158,15 @@ export class ReservasService {
     }
 
     const esNocturno = createDto.horaInicio >= cancha.horaInicioNoche.substring(0, 5);
-    const montoTotal = esNocturno
+    const precioBase = esNocturno
       ? Number(cancha.precioHoraNoche)
       : Number(cancha.precioHoraDia);
+
+    const configPago = await this.configPagoRepository.findOne({ where: { idLocal: cancha.idLocal } });
+    const descuentoPct = Number(configPago?.descuentoPct ?? 0);
+    const adelantoPct = Number(configPago?.adelantoPct ?? 100);
+    const montoTotal = Number((precioBase * (1 - descuentoPct / 100)).toFixed(2));
+    const montoAdelanto = Number((montoTotal * adelantoPct / 100).toFixed(2));
 
     const reserva = this.reservasRepository.create({
       idUsuario: userId,
@@ -175,7 +184,7 @@ export class ReservasService {
     const pago = this.pagosRepository.create({
       idReserva: reservaGuardada.id,
       idLocal: cancha.idLocal,
-      monto: montoTotal,
+      monto: montoAdelanto,
       estadoPago: 'pendiente',
     });
     await this.pagosRepository.save(pago);

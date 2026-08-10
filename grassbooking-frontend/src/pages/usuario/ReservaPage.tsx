@@ -8,9 +8,10 @@ import { ConfirmacionReserva } from '../../components/reservas/ConfirmacionReser
 import { PagoModal } from '../../components/reservas/PagoModal';
 import { canchasService } from '../../services/canchas.service';
 import { reservasService } from '../../services/reservas.service';
+import { localesService } from '../../services/locales.service';
 import { useAuth } from '../../hooks/useAuth';
 import { urlImagen } from '../../utils/media';
-import { Cancha, Reserva, SlotDisponibilidad } from '../../types';
+import { Cancha, ConfiguracionPagoPublica, Reserva, SlotDisponibilidad } from '../../types';
 import { format, addDays } from 'date-fns';
 import axios from 'axios';
 
@@ -21,6 +22,7 @@ export const ReservaPage = () => {
   const [searchParams] = useSearchParams();
 
   const [cancha, setCancha] = useState<Cancha | null>(null);
+  const [configPublica, setConfigPublica] = useState<ConfiguracionPagoPublica | null>(null);
   const [fechaSeleccionada, setFechaSeleccionada] = useState(
     searchParams.get('fecha') || format(new Date(), 'yyyy-MM-dd'),
   );
@@ -38,7 +40,11 @@ export const ReservaPage = () => {
     if (!idCancha) return;
     canchasService
       .getById(Number(idCancha))
-      .then((res) => setCancha(res.data))
+      .then((res) => {
+        setCancha(res.data);
+        return localesService.getConfigPagoPublica(res.data.idLocal);
+      })
+      .then((cfg) => setConfigPublica(cfg.data))
       .catch(() => navigate('/canchas'))
       .finally(() => setIsLoading(false));
   }, [idCancha, navigate]);
@@ -203,6 +209,7 @@ export const ReservaPage = () => {
             slot={slotSeleccionado}
             isLoading={isReservando}
             estaAutenticado={isAuthenticated}
+            configPublica={configPublica}
             onConfirmar={handleConfirmar}
             onCancelar={() => {
               setMostrarConfirmacion(false);

@@ -35,6 +35,8 @@ export interface ConfiguracionPago {
   yapeActivo: boolean;
   yapeQrUrl?: string | null;
   yapeTelefono?: string | null;
+  descuentoPct?: number;
+  adelantoPct?: number;
 }
 
 export type EstadoConexionMP = 'pendiente' | 'conectada' | 'desconectada' | 'error';
@@ -54,6 +56,8 @@ export interface ConfiguracionPagoPublica {
   yapeActivo: boolean;
   yapeQrUrl: string | null;
   yapeTelefono: string | null;
+  descuentoPct: number;
+  adelantoPct: number;
 }
 
 export interface Cancha {

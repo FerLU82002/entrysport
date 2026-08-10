@@ -46,6 +46,14 @@ export class ConfiguracionPago {
   @Column({ name: 'yape_telefono', length: 20, nullable: true })
   yapeTelefono: string;
 
+  // Descuento automático (%) sobre el precio de la cancha. 0 = sin descuento.
+  @Column({ name: 'descuento_pct', type: 'decimal', precision: 5, scale: 2, default: 0 })
+  descuentoPct: number;
+
+  // Porcentaje del total que el usuario paga al reservar. 100 = pago completo; 0 = paga al llegar.
+  @Column({ name: 'adelanto_pct', type: 'decimal', precision: 5, scale: 2, default: 100 })
+  adelantoPct: number;
+
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 

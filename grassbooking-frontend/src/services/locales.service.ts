@@ -56,6 +56,8 @@ export const localesService = {
     yapeActivo: boolean;
     yapeQrUrl: string;
     yapeTelefono: string;
+    descuentoPct: number;
+    adelantoPct: number;
   }>) {
     const res = await api.patch<ApiResponse<ConfiguracionPago>>(
       '/locales/mi-local/config-pago',

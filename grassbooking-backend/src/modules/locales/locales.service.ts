@@ -183,6 +183,8 @@ export class LocalesService {
     if (dto.yapeActivo !== undefined) config.yapeActivo = dto.yapeActivo;
     if (dto.yapeQrUrl !== undefined) config.yapeQrUrl = dto.yapeQrUrl;
     if (dto.yapeTelefono !== undefined) config.yapeTelefono = dto.yapeTelefono;
+    if (dto.descuentoPct !== undefined) config.descuentoPct = dto.descuentoPct;
+    if (dto.adelantoPct !== undefined) config.adelantoPct = dto.adelantoPct;
 
     const guardado = await this.configPagoRepository.save(config);
     const { culqiSecretKeyEnc: _c, ...publico } = guardado;
@@ -219,6 +221,8 @@ export class LocalesService {
         yapeActivo: yapeListo,
         yapeQrUrl: yapeListo ? config.yapeQrUrl : null,
         yapeTelefono: yapeListo ? config.yapeTelefono : null,
+        descuentoPct: Number(config.descuentoPct ?? 0),
+        adelantoPct: Number(config.adelantoPct ?? 100),
       },
       message: 'Métodos de pago disponibles',
     };

@@ -6,9 +6,10 @@ import { Reserva } from './entities/reserva.entity';
 import { Cancha } from '../canchas/entities/cancha.entity';
 import { Notificacion } from '../notificaciones/entities/notificacion.entity';
 import { Pago } from '../pagos/entities/pago.entity';
+import { ConfiguracionPago } from '../locales/entities/configuracion-pago.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Reserva, Cancha, Notificacion, Pago])],
+  imports: [TypeOrmModule.forFeature([Reserva, Cancha, Notificacion, Pago, ConfiguracionPago])],
   controllers: [ReservasController],
   providers: [ReservasService],
   exports: [ReservasService, TypeOrmModule],
