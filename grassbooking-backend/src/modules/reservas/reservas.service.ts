@@ -165,8 +165,12 @@ export class ReservasService {
     const configPago = await this.configPagoRepository.findOne({ where: { idLocal: cancha.idLocal } });
     const descuentoPct = Number(configPago?.descuentoPct ?? 0);
     const adelantoPct = Number(configPago?.adelantoPct ?? 100);
+    // Descuento aplica al total; adelanto se calcula sobre el precio original
     const montoTotal = Number((precioBase * (1 - descuentoPct / 100)).toFixed(2));
-    const montoAdelanto = Number((montoTotal * adelantoPct / 100).toFixed(2));
+    const montoAdelanto = Math.min(
+      Number((precioBase * adelantoPct / 100).toFixed(2)),
+      montoTotal,
+    );
 
     const reserva = this.reservasRepository.create({
       idUsuario: userId,

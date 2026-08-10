@@ -41,8 +41,12 @@ export const ConfirmacionReserva = ({
   const descuentoPct = configPublica?.descuentoPct ?? 0;
   const adelantoPct = configPublica?.adelantoPct ?? 100;
 
+  // Descuento aplica al total; adelanto se calcula sobre el precio original (sin descuento)
   const montoTotal = Number((precioBase * (1 - descuentoPct / 100)).toFixed(2));
-  const montoAhorita = Number((montoTotal * adelantoPct / 100).toFixed(2));
+  const montoAhorita = Math.min(
+    Number((precioBase * adelantoPct / 100).toFixed(2)),
+    montoTotal,
+  );
   const montoAlLlegar = Number((montoTotal - montoAhorita).toFixed(2));
 
   const hayDescuento = descuentoPct > 0;
