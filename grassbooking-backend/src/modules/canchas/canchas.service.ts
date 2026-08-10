@@ -23,7 +23,21 @@ export class CanchasService {
     const canchas = await this.canchasRepository.find({
       where,
       order: { createdAt: 'ASC' },
+      relations: soloActivas ? ['local', 'local.configuracionPago'] : [],
     });
+
+    if (soloActivas) {
+      const data = canchas.map((c) => {
+        const { local, ...base } = c as any;
+        return {
+          ...base,
+          descuentoPct: Number(local?.configuracionPago?.descuentoPct ?? 0),
+          local: local ? { id: local.id, nombre: local.nombre } : undefined,
+        };
+      });
+      return { data, message: 'Canchas obtenidas' };
+    }
+
     return { data: canchas, message: 'Canchas obtenidas' };
   }
 

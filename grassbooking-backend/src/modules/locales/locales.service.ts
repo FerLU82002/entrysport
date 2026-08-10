@@ -36,14 +36,18 @@ export class LocalesService {
   async findAllPublic() {
     const locales = await this.localesRepository.find({
       where: { estado: 'activo' },
-      relations: ['canchas'],
+      relations: ['canchas', 'configuracionPago'],
       order: { nombre: 'ASC' },
     });
 
-    const data = locales.map((local) => ({
-      ...local,
-      canchas: local.canchas.filter((c) => c.estado === 'activa'),
-    }));
+    const data = locales.map((local) => {
+      const { configuracionPago: cfg, ...rest } = local as any;
+      return {
+        ...rest,
+        canchas: local.canchas.filter((c) => c.estado === 'activa'),
+        descuentoPct: Number(cfg?.descuentoPct ?? 0),
+      };
+    });
 
     return { data, message: 'Locales obtenidos' };
   }
@@ -51,15 +55,22 @@ export class LocalesService {
   async findOnePublic(id: number) {
     const local = await this.localesRepository.findOne({
       where: { id, estado: 'activo' },
-      relations: ['canchas'],
+      relations: ['canchas', 'configuracionPago'],
     });
 
     if (!local) {
       throw new NotFoundException(`Local #${id} no encontrado`);
     }
 
-    local.canchas = local.canchas.filter((c) => c.estado === 'activa');
-    return { data: local, message: 'Local obtenido' };
+    const { configuracionPago: cfg, ...rest } = local as any;
+    return {
+      data: {
+        ...rest,
+        canchas: local.canchas.filter((c) => c.estado === 'activa'),
+        descuentoPct: Number(cfg?.descuentoPct ?? 0),
+      },
+      message: 'Local obtenido',
+    };
   }
 
   async findAllAdmin() {

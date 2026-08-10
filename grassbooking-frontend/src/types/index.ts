@@ -24,6 +24,7 @@ export interface Local {
   createdAt?: string;
   canchas?: Cancha[];
   administradores?: Usuario[];
+  descuentoPct?: number;
 }
 
 export interface ConfiguracionPago {
@@ -75,6 +76,7 @@ export interface Cancha {
   fotos?: string[];
   createdAt?: string;
   local?: Local;
+  descuentoPct?: number;
 }
 
 export interface Horario {

@@ -12,16 +12,30 @@ interface Props {
 
 export const CanchaCard = ({ cancha, showActions, onEdit, onToggleEstado }: Props) => {
   const portada = cancha.imagenUrl || cancha.fotos?.[0];
+  const descuentoPct = cancha.descuentoPct ?? 0;
+  const hayDescuento = descuentoPct > 0;
+
+  const precioDia = Number(cancha.precioHoraDia);
+  const precioNoche = Number(cancha.precioHoraNoche);
+  const precioDiaDesc = Number((precioDia * (1 - descuentoPct / 100)).toFixed(2));
+  const precioNocheDesc = Number((precioNoche * (1 - descuentoPct / 100)).toFixed(2));
 
   return (
     <div className="bg-white rounded-lg border border-ink-100 shadow-card overflow-hidden hover:border-ink-300 transition-colors">
-      {portada ? (
-        <img src={urlImagen(portada)} alt={cancha.nombre} className="w-full h-36 object-cover" />
-      ) : (
-        <div className="w-full h-36 bg-ink-100 flex items-center justify-center text-ink-300">
-          <LandPlot size={26} strokeWidth={1.5} />
-        </div>
-      )}
+      <div className="relative">
+        {portada ? (
+          <img src={urlImagen(portada)} alt={cancha.nombre} className="w-full h-36 object-cover" />
+        ) : (
+          <div className="w-full h-36 bg-ink-100 flex items-center justify-center text-ink-300">
+            <LandPlot size={26} strokeWidth={1.5} />
+          </div>
+        )}
+        {hayDescuento && (
+          <span className="absolute top-2 right-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-green-500 text-white shadow">
+            -{descuentoPct}% descuento
+          </span>
+        )}
+      </div>
 
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">
@@ -55,10 +69,25 @@ export const CanchaCard = ({ cancha, showActions, onEdit, onToggleEstado }: Prop
           <p className="text-xs text-ink-400 mb-3 line-clamp-2">{cancha.descripcion}</p>
         )}
 
-        <p className="text-ink-900 font-semibold mb-4">
-          S/ {Number(cancha.precioHoraDia).toFixed(2)} – S/ {Number(cancha.precioHoraNoche).toFixed(2)}{' '}
-          <span className="text-sm font-normal text-ink-400">/ hora (día / noche)</span>
-        </p>
+        <div className="mb-4">
+          {hayDescuento ? (
+            <>
+              <p className="text-xs text-ink-400 line-through">
+                S/ {precioDia.toFixed(2)} – S/ {precioNoche.toFixed(2)}
+                <span className="not-italic"> / hora (día / noche)</span>
+              </p>
+              <p className="text-ink-900 font-semibold">
+                S/ {precioDiaDesc.toFixed(2)} – S/ {precioNocheDesc.toFixed(2)}{' '}
+                <span className="text-sm font-normal text-ink-400">/ hora (día / noche)</span>
+              </p>
+            </>
+          ) : (
+            <p className="text-ink-900 font-semibold">
+              S/ {precioDia.toFixed(2)} – S/ {precioNoche.toFixed(2)}{' '}
+              <span className="text-sm font-normal text-ink-400">/ hora (día / noche)</span>
+            </p>
+          )}
+        </div>
 
         {showActions ? (
           <div className="flex gap-2">

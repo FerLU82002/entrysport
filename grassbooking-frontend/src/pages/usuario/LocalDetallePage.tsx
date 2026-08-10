@@ -109,7 +109,10 @@ export const LocalDetallePage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {local.canchas.map((cancha) => (
-              <CanchaCard key={cancha.id} cancha={cancha} />
+              <CanchaCard
+                key={cancha.id}
+                cancha={{ ...cancha, descuentoPct: local.descuentoPct ?? 0 }}
+              />
             ))}
           </div>
         )}

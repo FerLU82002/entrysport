@@ -52,13 +52,20 @@ export const LocalesPage = () => {
                   to={`/locales/${local.id}`}
                   className="bg-white rounded-lg border border-ink-100 shadow-card overflow-hidden hover:border-ink-300 transition-colors block"
                 >
-                  {portada ? (
-                    <img src={urlImagen(portada)} alt={local.nombre} className="w-full h-36 object-cover" />
-                  ) : (
-                    <div className="w-full h-36 bg-ink-100 flex items-center justify-center text-ink-300">
-                      <Building2 size={28} strokeWidth={1.5} />
-                    </div>
-                  )}
+                  <div className="relative">
+                    {portada ? (
+                      <img src={urlImagen(portada)} alt={local.nombre} className="w-full h-36 object-cover" />
+                    ) : (
+                      <div className="w-full h-36 bg-ink-100 flex items-center justify-center text-ink-300">
+                        <Building2 size={28} strokeWidth={1.5} />
+                      </div>
+                    )}
+                    {(local.descuentoPct ?? 0) > 0 && (
+                      <span className="absolute top-2 right-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-green-500 text-white shadow">
+                        -{local.descuentoPct}% descuento
+                      </span>
+                    )}
+                  </div>
                   <div className="p-4">
                     <h3 className="font-medium text-ink-900 mb-1.5">{local.nombre}</h3>
                     {local.direccion && (

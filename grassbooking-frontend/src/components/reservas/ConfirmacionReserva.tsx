@@ -32,10 +32,7 @@ export const ConfirmacionReserva = ({
 }: Props) => {
   const [notas, setNotas] = useState('');
 
-  const fechaFormateada = format(parseISO(fecha), "EEEE d 'de' MMMM yyyy", {
-    locale: es,
-  });
-
+  const fechaFormateada = format(parseISO(fecha), "EEEE d 'de' MMMM yyyy", { locale: es });
   const horaNum = parseInt(slot.horaInicio.split(':')[0]);
   const ampm = horaNum >= 12 ? 'PM' : 'AM';
   const hora12 = horaNum > 12 ? horaNum - 12 : horaNum;
@@ -43,12 +40,14 @@ export const ConfirmacionReserva = ({
   const precioBase = precioParaHora(cancha, slot.horaInicio);
   const descuentoPct = configPublica?.descuentoPct ?? 0;
   const adelantoPct = configPublica?.adelantoPct ?? 100;
-  const montoConDescuento = Number((precioBase * (1 - descuentoPct / 100)).toFixed(2));
-  const montoAdelanto = Number((montoConDescuento * adelantoPct / 100).toFixed(2));
-  const montoPendiente = Number((montoConDescuento - montoAdelanto).toFixed(2));
+
+  const montoTotal = Number((precioBase * (1 - descuentoPct / 100)).toFixed(2));
+  const montoAhorita = Number((montoTotal * adelantoPct / 100).toFixed(2));
+  const montoAlLlegar = Number((montoTotal - montoAhorita).toFixed(2));
+
   const hayDescuento = descuentoPct > 0;
-  const pagoPartial = adelantoPct < 100 && adelantoPct > 0;
-  const pagaTodo = adelantoPct === 100;
+  const pagoPartial = adelantoPct > 0 && adelantoPct < 100;
+  const pagaTodo = adelantoPct >= 100;
   const pagaAlLlegar = adelantoPct === 0;
 
   return (
@@ -58,6 +57,7 @@ export const ConfirmacionReserva = ({
         Confirmar reserva
       </h3>
 
+      {/* Detalles de la reserva */}
       <div className="bg-ink-50 rounded-md p-4 mb-4 space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-ink-500">Cancha</span>
@@ -74,60 +74,59 @@ export const ConfirmacionReserva = ({
           </span>
         </div>
 
+        {/* Precio con o sin descuento */}
         <div className="border-t border-ink-200 pt-2 mt-2 space-y-1.5">
           {hayDescuento && (
             <div className="flex justify-between text-sm">
-              <span className="text-ink-400">Precio base</span>
+              <span className="text-ink-400">Precio normal</span>
               <span className="text-ink-400 line-through">S/ {precioBase.toFixed(2)}</span>
             </div>
           )}
           {hayDescuento && (
             <div className="flex justify-between text-sm">
-              <span className="text-green-700 font-medium flex items-center gap-1">
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-700">
+              <span className="flex items-center gap-1.5 text-green-700 font-medium">
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-green-100 text-green-700">
                   -{descuentoPct}%
                 </span>
                 Descuento
               </span>
-              <span className="text-green-700 font-medium">-S/ {(precioBase - montoConDescuento).toFixed(2)}</span>
+              <span className="text-green-700 font-medium">-S/ {(precioBase - montoTotal).toFixed(2)}</span>
             </div>
           )}
           <div className="flex justify-between text-sm">
-            <span className="text-ink-700 font-medium">Total a pagar</span>
-            <span className="text-ink-900 font-semibold">S/ {montoConDescuento.toFixed(2)}</span>
+            <span className="text-ink-500">Precio reserva</span>
+            <span className="text-ink-700 font-medium">S/ {montoTotal.toFixed(2)}</span>
           </div>
         </div>
 
-        {pagoPartial && (
-          <div className="border-t border-ink-200 pt-2 mt-1 space-y-1.5">
-            <div className="flex justify-between text-sm">
-              <span className="text-ink-600">Pagas ahora ({adelantoPct}%)</span>
-              <span className="text-ink-900 font-semibold">S/ {montoAdelanto.toFixed(2)}</span>
+        {/* Monto que paga ahora — bloque prominente */}
+        <div className="border-t border-ink-200 pt-3 mt-1">
+          {pagaAlLlegar ? (
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-semibold text-ink-700">Pagas al llegar</span>
+              <span className="text-xl font-bold text-ink-900">S/ {montoTotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-ink-400">Al llegar al local</span>
-              <span className="text-ink-400">S/ {montoPendiente.toFixed(2)}</span>
+          ) : pagoPartial ? (
+            <>
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="text-sm font-semibold text-ink-900">Para reservar ahora</span>
+                  <p className="text-xs text-ink-400">({adelantoPct}% del total)</p>
+                </div>
+                <span className="text-2xl font-bold text-ink-900">S/ {montoAhorita.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-sm text-ink-500">Al llegar al local</span>
+                <span className="text-sm font-medium text-ink-600">S/ {montoAlLlegar.toFixed(2)}</span>
+              </div>
+            </>
+          ) : (
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-semibold text-ink-700">Total a pagar</span>
+              <span className="text-xl font-bold text-ink-900">S/ {montoTotal.toFixed(2)}</span>
             </div>
-          </div>
-        )}
-
-        {pagaAlLlegar && (
-          <div className="border-t border-ink-200 pt-2 mt-1">
-            <div className="flex justify-between text-sm">
-              <span className="text-ink-500">Pago</span>
-              <span className="text-ink-700 font-medium">Al llegar al local</span>
-            </div>
-          </div>
-        )}
-
-        {pagaTodo && (
-          <div className="border-t border-ink-200 pt-2 mt-1">
-            <div className="flex justify-between text-sm">
-              <span className="text-ink-500">Pago</span>
-              <span className="text-ink-700">En línea o al llegar</span>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <div className="mb-4">
@@ -145,9 +144,9 @@ export const ConfirmacionReserva = ({
 
       <p className="text-xs text-ink-400 mb-4">
         {pagaAlLlegar
-          ? 'Pagarás el total directamente en el local. Puedes cancelar con 2 o más horas de anticipación.'
+          ? 'Tu reserva queda confirmada. Paga directamente en el local.'
           : pagoPartial
-          ? `Pagas S/ ${montoAdelanto.toFixed(2)} ahora para confirmar tu reserva. El resto (S/ ${montoPendiente.toFixed(2)}) lo pagas al llegar. Puedes cancelar con 2 o más horas de anticipación.`
+          ? `Paga S/ ${montoAhorita.toFixed(2)} para confirmar tu reserva. El resto lo pagas al llegar. Puedes cancelar con 2 o más horas de anticipación.`
           : 'Después de confirmar podrás pagar en línea o en efectivo al llegar. Puedes cancelar con 2 o más horas de anticipación.'
         }
       </p>
@@ -163,6 +162,10 @@ export const ConfirmacionReserva = ({
               <span className="flex items-center justify-center gap-2">
                 <LoadingSpinner size="sm" /> Confirmando...
               </span>
+            ) : pagaAlLlegar ? (
+              'Confirmar reserva (sin pago previo)'
+            ) : pagoPartial ? (
+              `Confirmar y pagar S/ ${montoAhorita.toFixed(2)}`
             ) : (
               'Confirmar reserva'
             )}
