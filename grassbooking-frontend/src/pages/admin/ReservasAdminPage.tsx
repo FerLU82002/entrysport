@@ -9,6 +9,7 @@ import { reservasService, CreateReservaManualPayload } from '../../services/rese
 import { pagosService } from '../../services/pagos.service';
 import { canchasService } from '../../services/canchas.service';
 import { Reserva, EstadoReserva, EstadoPago, Cancha, SlotDisponibilidad } from '../../types';
+import { nombreClienteReserva, telefonoClienteReserva, canchaLabel } from '../../utils/reserva';
 import axios from 'axios';
 
 const ESTADOS_RESERVA: { value: EstadoReserva | 'todas'; label: string }[] = [
@@ -305,7 +306,15 @@ export const ReservasAdminPage = () => {
                 </p>
                 <p className="text-ink-500">
                   Cliente: <span className="font-medium text-ink-700">
-                    {modalReserva.usuario?.nombre ?? '—'}
+                    {nombreClienteReserva(modalReserva)}
+                  </span>
+                  {telefonoClienteReserva(modalReserva) && (
+                    <span className="text-ink-400"> · {telefonoClienteReserva(modalReserva)}</span>
+                  )}
+                </p>
+                <p className="text-ink-500">
+                  Cancha: <span className="font-medium text-ink-700">
+                    {canchaLabel(modalReserva)}
                   </span>
                 </p>
                 <p className="text-ink-500">
@@ -313,6 +322,11 @@ export const ReservasAdminPage = () => {
                     {modalReserva.fechaReserva} · {modalReserva.horaInicio.substring(0, 5)}–{modalReserva.horaFin.substring(0, 5)}
                   </span>
                 </p>
+                {modalReserva.notas && (
+                  <p className="text-ink-500">
+                    Obs: <span className="font-medium text-ink-700">{modalReserva.notas}</span>
+                  </p>
+                )}
                 <div className="border-t border-ink-200 my-1.5" />
                 {hayAdelanto ? (
                   <>

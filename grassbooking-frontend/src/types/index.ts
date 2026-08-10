@@ -128,6 +128,8 @@ export interface Reserva {
   montoTotal: number;
   codigoReserva: string;
   notas?: string;
+  nombreCliente?: string;
+  telefonoCliente?: string;
   createdAt: string;
   usuario?: Usuario;
   cancha?: Cancha;

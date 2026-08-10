@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Reserva, EstadoReserva } from '../../types';
 import { reservasService } from '../../services/reservas.service';
+import { nombreClienteReserva, canchaLabel } from '../../utils/reserva';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { format, addWeeks, addDays, isToday, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -40,12 +41,6 @@ function semanaDesde(offset: number): Date[] {
 
 function toDateStr(d: Date) {
   return format(d, 'yyyy-MM-dd');
-}
-
-function nombreCliente(r: Reserva): string {
-  if (r.usuario?.nombre) return r.usuario.nombre;
-  const m = r.notas?.match(/Cliente:\s*([^|]+)/);
-  return m ? m[1].trim() : 'Cliente';
 }
 
 // ── component ────────────────────────────────────────────────────────────
@@ -215,11 +210,14 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
                       <button
                         key={r.id}
                         onClick={() => onGestionar(r)}
-                        title={`${nombreCliente(r)} · ${ESTADO_LABELS[r.estado]}`}
+                        title={`${nombreClienteReserva(r)} · ${canchaLabel(r)} · ${ESTADO_LABELS[r.estado]}`}
                         className={`w-full text-left rounded text-[10px] px-1 py-0.5 leading-tight min-w-0 ${PILL[r.estado]}`}
                       >
                         <span className="block truncate font-medium">
-                          {nombreCliente(r)}
+                          {nombreClienteReserva(r)}
+                        </span>
+                        <span className="block truncate text-[9px] opacity-60">
+                          {canchaLabel(r)}
                         </span>
                         <span className="block text-[9px] opacity-60 tabular-nums">
                           {r.horaInicio.substring(0, 5)}

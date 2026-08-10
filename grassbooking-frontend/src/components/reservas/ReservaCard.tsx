@@ -3,6 +3,7 @@ import { Reserva, ESTADO_COLORES, ESTADO_LABELS } from '../../types';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { descargarTicketReserva } from '../../utils/ticketDownload';
+import { nombreClienteReserva, telefonoClienteReserva } from '../../utils/reserva';
 
 interface Props {
   reserva: Reserva;
@@ -43,12 +44,16 @@ export const ReservaCard = ({
 
           <h3 className="font-medium text-ink-900">
             {reserva.cancha?.nombre || `Cancha #${reserva.idCancha}`}
+            {reserva.cancha?.deporte && (
+              <span className="text-ink-400 font-normal"> · {reserva.cancha.deporte}</span>
+            )}
           </h3>
 
-          {showUsuario && reserva.usuario && (
+          {showUsuario && (
             <p className="flex items-center gap-1.5 text-sm text-ink-500">
               <User size={13} strokeWidth={1.75} />
-              {reserva.usuario.nombre} · {reserva.usuario.telefono}
+              {nombreClienteReserva(reserva)}
+              {telefonoClienteReserva(reserva) && ` · ${telefonoClienteReserva(reserva)}`}
             </p>
           )}
 

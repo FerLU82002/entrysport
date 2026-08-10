@@ -287,13 +287,6 @@ export class ReservasService {
       ? Number(cancha.precioHoraNoche)
       : Number(cancha.precioHoraDia);
 
-    // Armar notas: info del cliente + notas extra
-    const partesNotas: string[] = [];
-    if (dto.nombreCliente) partesNotas.push(`Cliente: ${dto.nombreCliente}`);
-    if (dto.telefonoCliente) partesNotas.push(`Tel: ${dto.telefonoCliente}`);
-    if (dto.notas) partesNotas.push(dto.notas);
-    const notasFinal = partesNotas.length > 0 ? partesNotas.join(' | ') : undefined;
-
     const reserva = this.reservasRepository.create({
       idUsuario: adminUserId,
       idCancha: dto.idCancha,
@@ -301,7 +294,9 @@ export class ReservasService {
       horaInicio: dto.horaInicio,
       horaFin,
       montoTotal,
-      notas: notasFinal,
+      nombreCliente: dto.nombreCliente,
+      telefonoCliente: dto.telefonoCliente,
+      notas: dto.notas,
       estado: 'confirmada', // reserva manual ya está confirmada
     });
 

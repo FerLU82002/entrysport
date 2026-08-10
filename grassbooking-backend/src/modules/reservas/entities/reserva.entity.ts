@@ -58,6 +58,12 @@ export class Reserva {
   @Column({ type: 'text', nullable: true })
   notas: string;
 
+  @Column({ name: 'nombre_cliente', length: 150, nullable: true })
+  nombreCliente: string;
+
+  @Column({ name: 'telefono_cliente', length: 20, nullable: true })
+  telefonoCliente: string;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
