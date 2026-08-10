@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Reserva, EstadoReserva } from '../../types';
 import { reservasService } from '../../services/reservas.service';
@@ -26,6 +26,10 @@ const ESTADO_LABELS: Record<EstadoReserva, string> = {
   cancelada:  'Cancelada',
   no_asistio: 'No asistió',
 };
+
+// Column layout shared between header and body
+const COL = '48px repeat(7, minmax(68px, 1fr))';
+const MIN_W = 544; // 48 + 7*68 ≈ 544
 
 // ── helpers ──────────────────────────────────────────────────────────────
 
@@ -56,6 +60,10 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
   const [reservas, setReservas] = useState<Reserva[]>([]);
   const [cargando, setCargando] = useState(true);
 
+  // Refs for syncing header ↔ body horizontal scroll
+  const headerRef = useRef<HTMLDivElement>(null);
+  const bodyRef   = useRef<HTMLDivElement>(null);
+
   const dias        = semanaDesde(offset);
   const semanaLabel = `${format(dias[0], "d MMM", { locale: es })} – ${format(dias[6], "d MMM yyyy", { locale: es })}`;
 
@@ -66,6 +74,13 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
       .catch(() => {})
       .finally(() => setCargando(false));
   }, [refreshKey]);
+
+  // When body scrolls horizontally → mirror into header
+  const onBodyScroll = () => {
+    if (headerRef.current && bodyRef.current) {
+      headerRef.current.scrollLeft = bodyRef.current.scrollLeft;
+    }
+  };
 
   const celdaReservas = (dia: Date, hora: number): Reserva[] =>
     reservas.filter(r =>
@@ -81,8 +96,6 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
     <div>
       {/* ── Toolbar ──────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-
-        {/* Navigation */}
         <div className="flex items-center gap-1">
           <button
             onClick={() => setOffset(p => p - 1)}
@@ -90,7 +103,7 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
           >
             <ChevronLeft size={15} strokeWidth={2} />
           </button>
-          <span className="text-xs sm:text-sm font-medium text-ink-700 text-center capitalize px-1">
+          <span className="text-xs sm:text-sm font-medium text-ink-700 capitalize px-1">
             {semanaLabel}
           </span>
           <button
@@ -102,14 +115,13 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
           {offset !== 0 && (
             <button
               onClick={() => setOffset(0)}
-              className="text-xs border border-ink-200 rounded-md px-2 py-1 text-ink-500 hover:text-ink-800 transition-colors ml-0.5"
+              className="text-xs border border-ink-200 rounded-md px-2 py-1 text-ink-500 hover:text-ink-800 ml-0.5"
             >
               Hoy
             </button>
           )}
         </div>
 
-        {/* Pending badge + legend */}
         <div className="flex items-center gap-2 text-xs text-ink-500">
           {pendientesEnSemana > 0 && (
             <span className="flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-md px-2 py-1 font-medium">
@@ -139,29 +151,24 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
           <LoadingSpinner text="Cargando reservas..." />
         </div>
       ) : (
-        /*
-         * KEY FIX FOR MOBILE:
-         * overflow: auto (both axes) + max-height creates a proper scroll container.
-         * This makes `sticky top-0` and `sticky left-0` both work correctly,
-         * because sticky elements anchor to the nearest overflow ancestor.
-         * Using only overflow-x: auto breaks sticky top-0 (CSS spec side-effect).
-         */
-        <div
-          className="rounded-lg border border-ink-100 bg-white overflow-auto"
-          style={{
-            maxHeight: 'calc(100dvh - 230px)',
-            WebkitOverflowScrolling: 'touch', // smooth momentum scroll on iOS
-          }}
-        >
-          <div style={{ minWidth: 600 }}>
+        <div className="rounded-lg border border-ink-100 bg-white">
 
-            {/* ── Day headers — sticky top inside scroll container ── */}
+          {/*
+           * DAY HEADER — lives OUTSIDE the body scroll container.
+           * overflow: hidden so no scrollbar; scrollLeft is driven by JS.
+           * This avoids the "overflow-x-auto breaks sticky top-0" bug.
+           */}
+          <div
+            ref={headerRef}
+            className="border-b border-ink-200 bg-white rounded-t-lg"
+            style={{ overflowX: 'hidden' }}
+          >
             <div
-              className="grid sticky top-0 bg-white z-20 border-b border-ink-200 shadow-sm"
-              style={{ gridTemplateColumns: '48px repeat(7, minmax(72px, 1fr))' }}
+              className="grid"
+              style={{ gridTemplateColumns: COL, minWidth: MIN_W }}
             >
               {/* Corner */}
-              <div className="border-r border-ink-100" />
+              <div className="border-r border-ink-100 h-12" />
 
               {dias.map((dia, i) => {
                 const esHoy   = isToday(dia);
@@ -192,66 +199,77 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
                 );
               })}
             </div>
+          </div>
 
-            {/* ── Time rows ── */}
-            {HORAS.map(hora => (
-              <div
-                key={hora}
-                className="grid border-b border-ink-50 last:border-b-0"
-                style={{
-                  gridTemplateColumns: '48px repeat(7, minmax(72px, 1fr))',
-                  minHeight: 64, // taller rows = easier to tap on mobile
-                }}
-              >
-                {/* Hour label — sticky left inside scroll container */}
-                <div className="sticky left-0 bg-white z-10 flex items-start justify-end pr-2 pt-2 border-r border-ink-100 shrink-0">
-                  <span className="text-[11px] text-ink-400 tabular-nums leading-none">
-                    {hora}:00
-                  </span>
+          {/*
+           * BODY — only overflow-x: auto (horizontal scroll).
+           * Vertical scroll is handled by the PAGE, not nested here.
+           * sticky left-0 on hour column WORKS with overflow-x-auto.
+           * onScroll syncs the header above.
+           */}
+          <div
+            ref={bodyRef}
+            className="overflow-x-auto rounded-b-lg"
+            onScroll={onBodyScroll}
+            style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+          >
+            <div style={{ minWidth: MIN_W }}>
+              {HORAS.map(hora => (
+                <div
+                  key={hora}
+                  className="grid border-b border-ink-50 last:border-b-0"
+                  style={{ gridTemplateColumns: COL, minHeight: 62 }}
+                >
+                  {/* Hour label — sticky left: works with overflow-x-auto */}
+                  <div className="sticky left-0 bg-white z-10 flex items-start justify-end pr-2 pt-2 border-r border-ink-100 shrink-0">
+                    <span className="text-[11px] text-ink-400 tabular-nums leading-none">
+                      {hora}:00
+                    </span>
+                  </div>
+
+                  {/* Day cells */}
+                  {dias.map((dia, di) => {
+                    const items   = celdaReservas(dia, hora);
+                    const esHoy   = isToday(dia);
+                    const visible = items.slice(0, 2);
+                    const extras  = items.length - visible.length;
+
+                    return (
+                      <div
+                        key={di}
+                        className={`p-1 border-r border-ink-50 last:border-r-0 space-y-0.5 ${
+                          esHoy ? 'bg-ink-50/40' : ''
+                        }`}
+                      >
+                        {visible.map(r => (
+                          <button
+                            key={r.id}
+                            onClick={() => onGestionar(r)}
+                            title={`${nombreCliente(r)} · ${ESTADO_LABELS[r.estado]}`}
+                            className={`w-full text-left rounded text-[11px] px-1.5 py-1 leading-tight ${PILL[r.estado]}`}
+                          >
+                            <span className="block truncate font-medium">
+                              {nombreCliente(r)}
+                            </span>
+                            <span className="block text-[10px] opacity-60 tabular-nums">
+                              {r.horaInicio.substring(0, 5)}–{r.horaFin.substring(0, 5)}
+                            </span>
+                          </button>
+                        ))}
+                        {extras > 0 && (
+                          <button
+                            onClick={() => onGestionar(items[2])}
+                            className="text-[10px] text-ink-400 hover:text-ink-700 block w-full text-left px-1 py-0.5"
+                          >
+                            +{extras} más
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-
-                {/* Day cells */}
-                {dias.map((dia, di) => {
-                  const items   = celdaReservas(dia, hora);
-                  const esHoy   = isToday(dia);
-                  const visible = items.slice(0, 2);
-                  const extras  = items.length - visible.length;
-
-                  return (
-                    <div
-                      key={di}
-                      className={`p-1 border-r border-ink-50 last:border-r-0 space-y-0.5 ${
-                        esHoy ? 'bg-ink-50/40' : ''
-                      }`}
-                    >
-                      {visible.map(r => (
-                        <button
-                          key={r.id}
-                          onClick={() => onGestionar(r)}
-                          title={`${nombreCliente(r)} · ${ESTADO_LABELS[r.estado]}`}
-                          className={`w-full text-left rounded text-[11px] px-1.5 py-1 leading-tight ${PILL[r.estado]}`}
-                        >
-                          <span className="block truncate font-medium">
-                            {nombreCliente(r)}
-                          </span>
-                          <span className="block text-[10px] opacity-60 tabular-nums">
-                            {r.horaInicio.substring(0, 5)}–{r.horaFin.substring(0, 5)}
-                          </span>
-                        </button>
-                      ))}
-                      {extras > 0 && (
-                        <button
-                          onClick={() => onGestionar(items[2])}
-                          className="text-[10px] text-ink-400 hover:text-ink-700 active:text-ink-900 block w-full text-left px-1 py-0.5"
-                        >
-                          +{extras} más
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       )}
