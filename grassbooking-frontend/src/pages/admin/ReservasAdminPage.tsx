@@ -165,42 +165,49 @@ export const ReservasAdminPage = () => {
       <div className="flex-1 flex flex-col min-h-0">
         <Navbar />
         <div className="flex-1 overflow-y-auto">
-          <main className="p-6 max-w-6xl">
+          <main className="px-4 py-4 sm:px-6 sm:py-6 max-w-6xl">
             {/* ── Header ── */}
-            <div className="flex items-center justify-between mb-5">
-              <h1 className="text-xl font-semibold text-ink-900">Gestión de reservas</h1>
-              <div className="flex items-center gap-2">
-                {/* Vista toggle */}
-                <div className="flex rounded-md border border-ink-200 overflow-hidden text-sm">
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <h1 className="text-base sm:text-xl font-semibold text-ink-900 truncate">
+                Gestión de reservas
+              </h1>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {/* Vista toggle — íconos en mobile, texto en sm+ */}
+                <div className="flex rounded-md border border-ink-200 overflow-hidden">
                   <button
                     onClick={() => setVista('calendario')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 transition-colors ${
+                    title="Vista calendario"
+                    className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 transition-colors ${
                       vista === 'calendario'
                         ? 'bg-ink-900 text-white'
                         : 'bg-white text-ink-600 hover:bg-ink-50'
                     }`}
                   >
-                    <CalendarDays size={14} strokeWidth={2} />
-                    Calendario
+                    <CalendarDays size={15} strokeWidth={2} />
+                    <span className="hidden sm:inline text-sm">Calendario</span>
                   </button>
                   <button
                     onClick={() => setVista('lista')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 border-l border-ink-200 transition-colors ${
+                    title="Vista lista"
+                    className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 border-l border-ink-200 transition-colors ${
                       vista === 'lista'
                         ? 'bg-ink-900 text-white'
                         : 'bg-white text-ink-600 hover:bg-ink-50'
                     }`}
                   >
-                    <LayoutList size={14} strokeWidth={2} />
-                    Lista
+                    <LayoutList size={15} strokeWidth={2} />
+                    <span className="hidden sm:inline text-sm">Lista</span>
                   </button>
                 </div>
+
+                {/* Registrar — icono en mobile, texto en sm+ */}
                 <button
                   onClick={() => { setShowNueva(true); setErrorNueva(''); }}
-                  className="btn-primary flex items-center gap-2 text-sm px-4 py-2"
+                  className="btn-primary flex items-center gap-1.5 text-sm px-3 py-1.5"
                 >
                   <Plus size={16} strokeWidth={2} />
-                  Registrar
+                  <span className="hidden sm:inline">Registrar</span>
                 </button>
               </div>
             </div>

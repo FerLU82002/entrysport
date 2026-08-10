@@ -83,26 +83,26 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
 
         {/* Navigation */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <button
             onClick={() => setOffset(p => p - 1)}
             className="p-1.5 rounded-md border border-ink-200 text-ink-600 hover:bg-ink-50 active:bg-ink-100 transition-colors"
           >
-            <ChevronLeft size={16} strokeWidth={2} />
+            <ChevronLeft size={15} strokeWidth={2} />
           </button>
-          <span className="text-sm font-medium text-ink-700 text-center capitalize min-w-[140px] sm:min-w-[170px]">
+          <span className="text-xs sm:text-sm font-medium text-ink-700 text-center capitalize px-1">
             {semanaLabel}
           </span>
           <button
             onClick={() => setOffset(p => p + 1)}
             className="p-1.5 rounded-md border border-ink-200 text-ink-600 hover:bg-ink-50 active:bg-ink-100 transition-colors"
           >
-            <ChevronRight size={16} strokeWidth={2} />
+            <ChevronRight size={15} strokeWidth={2} />
           </button>
           {offset !== 0 && (
             <button
               onClick={() => setOffset(0)}
-              className="text-xs border border-ink-200 rounded-md px-2 py-1.5 text-ink-500 hover:text-ink-800 transition-colors"
+              className="text-xs border border-ink-200 rounded-md px-2 py-1 text-ink-500 hover:text-ink-800 transition-colors ml-0.5"
             >
               Hoy
             </button>
@@ -110,14 +110,14 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
         </div>
 
         {/* Pending badge + legend */}
-        <div className="flex items-center gap-3 text-xs text-ink-500">
+        <div className="flex items-center gap-2 text-xs text-ink-500">
           {pendientesEnSemana > 0 && (
             <span className="flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-md px-2 py-1 font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />
-              {pendientesEnSemana} pendiente{pendientesEnSemana !== 1 ? 's' : ''}
+              {pendientesEnSemana} pend.
             </span>
           )}
-          <span className="hidden md:flex items-center gap-3">
+          <span className="hidden lg:flex items-center gap-3">
             {([
               ['bg-amber-400', 'Pendiente'],
               ['bg-green-500', 'Confirmada'],
@@ -149,7 +149,7 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
         <div
           className="rounded-lg border border-ink-100 bg-white overflow-auto"
           style={{
-            maxHeight: 'calc(100vh - 260px)',
+            maxHeight: 'calc(100dvh - 230px)',
             WebkitOverflowScrolling: 'touch', // smooth momentum scroll on iOS
           }}
         >
