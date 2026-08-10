@@ -75,21 +75,39 @@ export const ReservaCard = ({
           )}
         </div>
 
-        <div className="text-right">
+        <div className="text-right shrink-0">
           <p className="text-ink-900 font-semibold">
             S/ {Number(reserva.montoTotal).toFixed(2)}
           </p>
-          {reserva.pago && (
-            <span
-              className={`badge mt-1 ${
-                reserva.pago.estadoPago === 'pagado'
-                  ? 'bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-200'
-                  : 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200'
-              }`}
-            >
-              {reserva.pago.estadoPago === 'pagado' ? 'Pagado' : 'Pendiente pago'}
-            </span>
-          )}
+          {reserva.pago && (() => {
+            const montoTotal = Number(reserva.montoTotal);
+            const montoPago = Number(reserva.pago.monto);
+            const hayAdelanto = montoPago > 0 && montoPago < montoTotal;
+            const faltante = Number((montoTotal - montoPago).toFixed(2));
+            return (
+              <>
+                <span
+                  className={`badge mt-1 ${
+                    reserva.pago.estadoPago === 'pagado'
+                      ? 'bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-200'
+                      : 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200'
+                  }`}
+                >
+                  {reserva.pago.estadoPago === 'pagado' ? 'Pagado' : 'Pendiente pago'}
+                </span>
+                {hayAdelanto && reserva.pago.estadoPago !== 'pagado' && (
+                  <div className="mt-1.5 text-right space-y-0.5">
+                    <p className="text-xs text-ink-500">
+                      Adelanto: <span className="font-medium text-green-700">S/ {montoPago.toFixed(2)}</span>
+                    </p>
+                    <p className="text-xs text-amber-700 font-medium">
+                      Falta cobrar: S/ {faltante.toFixed(2)}
+                    </p>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       </div>
 
