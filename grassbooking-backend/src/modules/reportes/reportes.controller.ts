@@ -19,7 +19,12 @@ export class ReportesController {
   constructor(private readonly reportesService: ReportesService) {}
 
   private idLocalDe(req: ReqUser): number | undefined {
-    return req.user.rol === 'admin_local' ? req.user.idLocal ?? undefined : undefined;
+    if (req.user.rol !== 'admin_local') return undefined;
+    return req.user.idLocal ?? undefined;
+  }
+
+  private sinLocal(req: ReqUser): boolean {
+    return req.user.rol === 'admin_local' && !req.user.idLocal;
   }
 
   @Get('ocupacion')
@@ -31,6 +36,7 @@ export class ReportesController {
     @Query('hasta') hasta: string,
     @Request() req: ReqUser,
   ) {
+    if (this.sinLocal(req)) return { data: [], message: 'Aún no tienes un local asignado' };
     return this.reportesService.getOcupacion(desde, hasta, this.idLocalDe(req));
   }
 
@@ -43,6 +49,7 @@ export class ReportesController {
     @Query('hasta') hasta: string,
     @Request() req: ReqUser,
   ) {
+    if (this.sinLocal(req)) return { data: [], message: 'Aún no tienes un local asignado' };
     return this.reportesService.getIngresos(desde, hasta, this.idLocalDe(req));
   }
 
@@ -55,6 +62,7 @@ export class ReportesController {
     @Query('hasta') hasta: string,
     @Request() req: ReqUser,
   ) {
+    if (this.sinLocal(req)) return { data: null, message: 'Aún no tienes un local asignado' };
     return this.reportesService.getResumenReservas(desde, hasta, this.idLocalDe(req));
   }
 }

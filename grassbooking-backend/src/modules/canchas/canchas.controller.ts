@@ -42,7 +42,10 @@ export class CanchasController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Listar mis espacios deportivos (activos e inactivos) [ADMIN_LOCAL]' })
   findMisCanchas(@Request() req: ReqUser) {
-    return this.canchasService.findAll(false, req.user.idLocal ?? undefined);
+    if (!req.user.idLocal) {
+      return { data: [], message: 'Aún no tienes un local asignado' };
+    }
+    return this.canchasService.findAll(false, req.user.idLocal);
   }
 
   @Get('admin')

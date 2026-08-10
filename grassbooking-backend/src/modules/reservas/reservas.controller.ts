@@ -49,7 +49,11 @@ export class ReservasController {
     @Query('estado') estado?: string,
     @Query('id_cancha') idCancha?: number,
   ) {
-    const idLocal = req.user.rol === 'admin_local' ? req.user.idLocal ?? undefined : undefined;
+    const isAdminLocal = req.user.rol === 'admin_local';
+    if (isAdminLocal && !req.user.idLocal) {
+      return { data: [], message: 'Aún no tienes un local asignado' };
+    }
+    const idLocal = isAdminLocal ? req.user.idLocal ?? undefined : undefined;
     return this.reservasService.findTodas({ fecha, estado, idCancha, idLocal });
   }
 
@@ -58,7 +62,11 @@ export class ReservasController {
   @Roles('super_admin', 'admin_local')
   @ApiOperation({ summary: 'Reservas del día [SUPER_ADMIN, ADMIN_LOCAL]' })
   findHoy(@Request() req: ReqUser) {
-    const idLocal = req.user.rol === 'admin_local' ? req.user.idLocal ?? undefined : undefined;
+    const isAdminLocal = req.user.rol === 'admin_local';
+    if (isAdminLocal && !req.user.idLocal) {
+      return { data: [], message: 'Aún no tienes un local asignado' };
+    }
+    const idLocal = isAdminLocal ? req.user.idLocal ?? undefined : undefined;
     return this.reservasService.findHoy(idLocal);
   }
 

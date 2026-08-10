@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
-import { CalendarDays, BarChart3, Wallet, LandPlot, ClipboardList, TrendingUp } from 'lucide-react';
+import { CalendarDays, BarChart3, Wallet, LandPlot, ClipboardList, TrendingUp, AlertTriangle } from 'lucide-react';
 import { Sidebar } from '../../components/common/Sidebar';
 import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
@@ -10,6 +10,7 @@ import { reservasService } from '../../services/reservas.service';
 import { reportesService } from '../../services/reportes.service';
 import { canchasService } from '../../services/canchas.service';
 import { Reserva, ResumenReportes } from '../../types';
+import { useAuth } from '../../hooks/useAuth';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 
 interface KpiCardProps {
@@ -35,12 +36,18 @@ const KpiCard = ({ titulo, valor, subtitulo, icon: Icon }: KpiCardProps) => (
 );
 
 export const DashboardAdmin = () => {
+  const { usuario } = useAuth();
   const [reservasHoy, setReservasHoy] = useState<Reserva[]>([]);
   const [resumen, setResumen] = useState<ResumenReportes | null>(null);
   const [totalSlots, setTotalSlots] = useState(15);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!usuario?.idLocal) {
+      setIsLoading(false);
+      return;
+    }
+
     const inicioMes = format(startOfMonth(new Date()), 'yyyy-MM-dd');
     const finMes = format(endOfMonth(new Date()), 'yyyy-MM-dd');
 
@@ -72,6 +79,19 @@ export const DashboardAdmin = () => {
         <div className="flex-1 overflow-y-auto">
         <main className="p-6 max-w-6xl">
           <h1 className="text-xl font-semibold text-ink-900 mb-6">Dashboard</h1>
+
+          {!usuario?.idLocal && (
+            <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-4 py-4 mb-6">
+              <AlertTriangle size={18} className="shrink-0 mt-0.5" strokeWidth={1.75} />
+              <div>
+                <p className="font-medium text-sm">Tu cuenta aún no tiene un local asignado</p>
+                <p className="text-xs mt-1 text-amber-700">
+                  Contacta al super administrador para que te asigne el complejo deportivo que vas a administrar.
+                  Mientras tanto no podrás ver ni gestionar reservas o canchas.
+                </p>
+              </div>
+            </div>
+          )}
 
           {isLoading ? (
             <div className="flex justify-center py-16">
