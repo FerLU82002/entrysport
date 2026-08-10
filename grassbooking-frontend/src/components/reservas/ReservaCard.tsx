@@ -1,8 +1,9 @@
-import { User, CalendarDays, Clock, CreditCard } from 'lucide-react';
+import { User, CalendarDays, Clock, CreditCard, Download } from 'lucide-react';
 import { Reserva, ESTADO_COLORES, ESTADO_LABELS } from '../../types';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { format, parseISO, differenceInHours } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { descargarTicketReserva } from '../../utils/ticketDownload';
 
 interface Props {
   reserva: Reserva;
@@ -141,6 +142,14 @@ export const ReservaCard = ({
             Cambiar estado
           </button>
         )}
+        <button
+          onClick={() => descargarTicketReserva(reserva)}
+          className="btn-ghost text-sm py-1.5 px-3 flex items-center gap-1.5 text-ink-500 hover:text-ink-800"
+          title="Descargar comprobante"
+        >
+          <Download size={14} strokeWidth={1.75} />
+          Compartir
+        </button>
       </div>
     </div>
   );
