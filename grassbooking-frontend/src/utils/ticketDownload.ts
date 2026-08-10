@@ -149,7 +149,7 @@ export const descargarTicketReserva = (reserva: Reserva) => {
   ctx.fillStyle = C.white;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
-  ctx.fillText('EntrySport', PAD, CARD_Y + HDR_H / 2);
+  ctx.fillText('Chocolaterospe', PAD, CARD_Y + HDR_H / 2);
 
   // Right label
   ctx.font = `500 10px ${FONT}`;
@@ -267,7 +267,7 @@ export const descargarTicketReserva = (reserva: Reserva) => {
   ctx.fillStyle = C.light;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('Válido solo con el código de reserva · entrysport.pe', W / 2, y);
+  ctx.fillText('Válido solo con el código de reserva · chocolaterospe.space', W / 2, y);
   ctx.textAlign = 'left';
 
   // ── Download ──
