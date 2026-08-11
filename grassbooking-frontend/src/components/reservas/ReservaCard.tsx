@@ -3,7 +3,7 @@ import { Reserva, ESTADO_COLORES, ESTADO_LABELS } from '../../types';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { descargarTicketReserva } from '../../utils/ticketDownload';
-import { nombreClienteReserva, telefonoClienteReserva } from '../../utils/reserva';
+import { nombreClienteReserva, telefonoClienteReserva, to12h } from '../../utils/reserva';
 
 interface Props {
   reserva: Reserva;
@@ -18,16 +18,8 @@ export const ReservaCard = ({
   onCambiarEstado,
   onPagar,
 }: Props) => {
-  // PostgreSQL devuelve TIME como "HH:MM:SS" — tomar solo "HH:MM"
-  const horaInicioLimpia = reserva.horaInicio.substring(0, 5);
-  const horaFinLimpia = reserva.horaFin.substring(0, 5);
-
-  const horaNum = parseInt(horaInicioLimpia.split(':')[0]);
-  const horaFinNum = parseInt(horaFinLimpia.split(':')[0]);
-  const ampm = horaNum >= 12 ? 'PM' : 'AM';
-  const hora12 = horaNum > 12 ? horaNum - 12 : horaNum;
-  const horaFin12 = horaFinNum > 12 ? horaFinNum - 12 : horaFinNum;
-  const ampmFin = horaFinNum >= 12 ? 'PM' : 'AM';
+  const hora12Display = to12h(reserva.horaInicio);
+  const horaFin12Display = to12h(reserva.horaFin);
 
   return (
     <div className="card">
@@ -63,7 +55,7 @@ export const ReservaCard = ({
           </p>
           <p className="flex items-center gap-1.5 text-sm text-ink-600">
             <Clock size={13} strokeWidth={1.75} className="text-ink-400" />
-            {hora12}:00 {ampm} – {horaFin12}:00 {ampmFin}
+            {hora12Display} – {horaFin12Display}
           </p>
           {reserva.notas && (
             <p className="text-xs text-ink-400 mt-1 italic">"{reserva.notas}"</p>

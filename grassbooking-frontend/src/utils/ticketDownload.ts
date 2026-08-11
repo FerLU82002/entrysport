@@ -1,6 +1,7 @@
 import { Reserva } from '../types';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { to12h } from './reserva';
 
 const W    = 480;
 const PAD  = 36;
@@ -143,8 +144,8 @@ export const descargarTicketReserva = (reserva: Reserva) => {
   const deporte    = reserva.cancha?.deporte ?? '';
   const codigo     = (reserva.codigoReserva ?? '').slice(0, 8).toUpperCase();
   const fechaStr   = format(parseISO(reserva.fechaReserva), "EEEE, d 'de' MMMM yyyy", { locale: es });
-  const horaInicio = reserva.horaInicio.substring(0, 5);
-  const horaFin    = reserva.horaFin.substring(0, 5);
+  const horaInicio = to12h(reserva.horaInicio);
+  const horaFin    = to12h(reserva.horaFin);
 
   // ── Measure dynamic height ──────────────────────────────────────────────
   const CARD_X = 16;

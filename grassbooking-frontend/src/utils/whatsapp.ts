@@ -1,6 +1,7 @@
 import { Reserva } from '../types';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { to12h } from './reserva';
 
 /** Normaliza un número peruano a formato internacional sin símbolos (51987654321). */
 const normalizarTelefono = (telefono: string): string => {
@@ -24,7 +25,7 @@ export const construirMensajeComprobante = (reserva: Reserva, montoAPagar?: numb
     '',
     `Cancha: ${reserva.cancha?.nombre ?? `#${reserva.idCancha}`}`,
     `Fecha: ${fecha}`,
-    `Hora: ${reserva.horaInicio.substring(0, 5)} - ${reserva.horaFin.substring(0, 5)}`,
+    `Hora: ${to12h(reserva.horaInicio)} - ${to12h(reserva.horaFin)}`,
     esAdelanto
       ? `Adelanto pagado: S/ ${monto.toFixed(2)} (total reserva: S/ ${Number(reserva.montoTotal).toFixed(2)})`
       : `Monto: S/ ${monto.toFixed(2)}`,

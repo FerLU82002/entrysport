@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { reservasService } from '../../services/reservas.service';
 import { SlotDisponibilidad } from '../../types';
 import { LoadingSpinner } from '../common/LoadingSpinner';
+import { to12h } from '../../utils/reserva';
 
 interface Props {
   idCancha: number;
@@ -73,10 +74,6 @@ export const CalendarioDisponibilidad = ({
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
         {slots.map((slot) => {
           const isSelected = slotSeleccionado?.horaInicio === slot.horaInicio;
-          const hora = slot.horaInicio;
-          const horaNum = parseInt(hora.split(':')[0]);
-          const ampm = horaNum >= 12 ? 'PM' : 'AM';
-          const hora12 = horaNum > 12 ? horaNum - 12 : horaNum === 0 ? 12 : horaNum;
 
           return (
             <button
@@ -91,7 +88,7 @@ export const CalendarioDisponibilidad = ({
                   : 'bg-red-50 text-red-400 border-red-100 cursor-not-allowed'
               }`}
             >
-              {hora12}:00 {ampm}
+              {to12h(slot.horaInicio)}
             </button>
           );
         })}

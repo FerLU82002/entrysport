@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Cancha, ConfiguracionPagoPublica, SlotDisponibilidad } from '../../types';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { precioParaHora } from '../../utils/precio';
+import { to12h } from '../../utils/reserva';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -34,8 +35,9 @@ export const ConfirmacionReserva = ({
 
   const fechaFormateada = format(parseISO(fecha), "EEEE d 'de' MMMM yyyy", { locale: es });
   const horaNum = parseInt(slot.horaInicio.split(':')[0]);
-  const ampm = horaNum >= 12 ? 'PM' : 'AM';
-  const hora12 = horaNum > 12 ? horaNum - 12 : horaNum;
+  const horaFinCalc = `${String(horaNum + 1 >= 24 ? 0 : horaNum + 1).padStart(2, '0')}:00`;
+  const horaInicioLabel = to12h(slot.horaInicio);
+  const horaFinLabel = to12h(horaFinCalc);
 
   const precioBase = precioParaHora(cancha, slot.horaInicio);
   const descuentoPct = configPublica?.descuentoPct ?? 0;
@@ -73,7 +75,7 @@ export const ConfirmacionReserva = ({
         <div className="flex justify-between text-sm">
           <span className="text-ink-500">Horario</span>
           <span className="font-medium text-ink-900">
-            {hora12}:00 {ampm} – {hora12 + 1}:00 {ampm}
+            {horaInicioLabel} – {horaFinLabel}
           </span>
         </div>
 

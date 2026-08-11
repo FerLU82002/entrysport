@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Reserva, EstadoReserva } from '../../types';
 import { reservasService } from '../../services/reservas.service';
-import { nombreClienteReserva, canchaLabel } from '../../utils/reserva';
+import { nombreClienteReserva, canchaLabel, to12h } from '../../utils/reserva';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { format, addWeeks, addDays, isToday, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -220,7 +220,7 @@ export const CalendarioReservas = ({ onGestionar, refreshKey = 0 }: Props) => {
                           {canchaLabel(r)}
                         </span>
                         <span className="block text-[9px] opacity-60 tabular-nums">
-                          {r.horaInicio.substring(0, 5)}
+                          {to12h(r.horaInicio)}
                         </span>
                       </button>
                     ))}

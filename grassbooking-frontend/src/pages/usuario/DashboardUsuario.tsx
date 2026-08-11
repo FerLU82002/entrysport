@@ -8,6 +8,7 @@ import { reservasService } from '../../services/reservas.service';
 import { Reserva, ESTADO_COLORES, ESTADO_LABELS } from '../../types';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { to12h } from '../../utils/reserva';
 
 export const DashboardUsuario = () => {
   const { usuario } = useAuth();
@@ -95,7 +96,7 @@ export const DashboardUsuario = () => {
                     <p className="font-medium text-ink-900 text-sm">{reserva.cancha?.nombre}</p>
                     <p className="text-xs text-ink-500">
                       {format(parseISO(reserva.fechaReserva), "d 'de' MMMM", { locale: es })} ·{' '}
-                      {reserva.horaInicio} – {reserva.horaFin}
+                      {to12h(reserva.horaInicio)} – {to12h(reserva.horaFin)}
                     </p>
                   </div>
                   <span className={`badge ${ESTADO_COLORES[reserva.estado]}`}>
