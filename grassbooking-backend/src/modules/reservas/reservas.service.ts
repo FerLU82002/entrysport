@@ -33,7 +33,7 @@ export class ReservasService {
   async findMisReservas(userId: number) {
     const reservas = await this.reservasRepository.find({
       where: { idUsuario: userId },
-      relations: ['cancha'],
+      relations: ['cancha', 'pago'],
       order: { fechaReserva: 'DESC', horaInicio: 'DESC' },
     });
     return { data: reservas, message: 'Reservas obtenidas' };
