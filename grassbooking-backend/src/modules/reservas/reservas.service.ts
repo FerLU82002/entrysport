@@ -101,11 +101,8 @@ export class ReservasService {
   }
 
   async create(createDto: CreateReservaDto, userId: number) {
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const fechaReserva = new Date(createDto.fechaReserva + 'T00:00:00');
-
-    if (fechaReserva < hoy) {
+    const hoyStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
+    if (createDto.fechaReserva < hoyStr) {
       throw new BadRequestException('No se pueden crear reservas en fechas pasadas');
     }
 
