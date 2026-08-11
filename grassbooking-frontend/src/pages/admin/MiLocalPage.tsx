@@ -6,6 +6,7 @@ import { z } from 'zod';
 import axios from 'axios';
 import { CheckCircle2, AlertTriangle, Landmark } from 'lucide-react';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { useDelayedLoading } from '../../hooks/useDelayedLoading';
 import { SubidaFotos } from '../../components/common/SubidaFotos';
 import { localesService } from '../../services/locales.service';
 import { mercadoPagoOauthService } from '../../services/mercadopago-oauth.service';
@@ -28,6 +29,7 @@ export const MiLocalPage = () => {
   const [fotos, setFotos] = useState<string[]>([]);
   const [imagenPortada, setImagenPortada] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const showSpinner = useDelayedLoading(isLoading);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
   const [exito, setExito] = useState('');
@@ -93,7 +95,7 @@ export const MiLocalPage = () => {
                 : 'Aún no has registrado tu local. Completa estos datos para empezar a publicar tus espacios deportivos.'}
             </p>
 
-            {isLoading ? (
+            {showSpinner ? (
               <div className="flex justify-center py-16">
                 <LoadingSpinner size="lg" text="Cargando..." />
               </div>

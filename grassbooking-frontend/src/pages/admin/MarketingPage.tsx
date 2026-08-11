@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Tag, Wallet, Eye, CheckCircle } from 'lucide-react';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { useDelayedLoading } from '../../hooks/useDelayedLoading';
 import { localesService } from '../../services/locales.service';
 import { useAuth } from '../../hooks/useAuth';
 
 export const MarketingPage = () => {
   const { usuario } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const showSpinner = useDelayedLoading(isLoading);
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
@@ -63,7 +65,7 @@ export const MarketingPage = () => {
               <div className="card text-center py-10">
                 <p className="text-ink-500 text-sm">Aún no tienes un local asignado.</p>
               </div>
-            ) : isLoading ? (
+            ) : showSpinner ? (
               <div className="flex justify-center py-16">
                 <LoadingSpinner size="lg" text="Cargando configuración..." />
               </div>

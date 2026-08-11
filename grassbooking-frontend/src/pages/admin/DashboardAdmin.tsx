@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
 import { CalendarDays, BarChart3, Wallet, LandPlot, ClipboardList, TrendingUp, AlertTriangle } from 'lucide-react';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { useDelayedLoading } from '../../hooks/useDelayedLoading';
 import { ReservaCard } from '../../components/reservas/ReservaCard';
 import { reservasService } from '../../services/reservas.service';
 import { reportesService } from '../../services/reportes.service';
@@ -39,6 +40,7 @@ export const DashboardAdmin = () => {
   const [resumen, setResumen] = useState<ResumenReportes | null>(null);
   const [totalSlots, setTotalSlots] = useState(15);
   const [isLoading, setIsLoading] = useState(true);
+  const showSpinner = useDelayedLoading(isLoading);
 
   useEffect(() => {
     if (!usuario?.idLocal) {
@@ -84,7 +86,7 @@ export const DashboardAdmin = () => {
             </div>
           )}
 
-          {isLoading ? (
+          {showSpinner ? (
             <div className="flex justify-center py-16">
               <LoadingSpinner size="lg" text="Cargando datos..." />
             </div>

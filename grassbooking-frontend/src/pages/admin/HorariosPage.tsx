@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RefreshCw, Clock } from 'lucide-react';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { useDelayedLoading } from '../../hooks/useDelayedLoading';
 import { useCanchas } from '../../hooks/useCanchas';
 import api from '../../services/api';
 import { ApiResponse, Horario, DiaSemana } from '../../types';
@@ -27,6 +28,7 @@ export const HorariosPage = () => {
   const [canchaId, setCanchaId] = useState<number | null>(null);
   const [horarios, setHorarios] = useState<Horario[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const showSpinner = useDelayedLoading(isLoading);
   const [toggling, setToggling] = useState<number | null>(null);
 
   // Generador
@@ -249,7 +251,7 @@ export const HorariosPage = () => {
                 Haz clic en un turno para activar o desactivarlo individualmente.
               </p>
 
-              {isLoading ? (
+              {showSpinner ? (
                 <div className="flex justify-center py-16">
                   <LoadingSpinner size="lg" text="Cargando horarios..." />
                 </div>

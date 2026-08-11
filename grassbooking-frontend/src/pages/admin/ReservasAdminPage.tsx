@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, ClipboardList, Plus, RefreshCw, LayoutList, CalendarDays } from 'lucide-react';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { useDelayedLoading } from '../../hooks/useDelayedLoading';
 import { ReservaCard } from '../../components/reservas/ReservaCard';
 import { CalendarioReservas } from '../../components/reservas/CalendarioReservas';
 import { reservasService, CreateReservaManualPayload } from '../../services/reservas.service';
@@ -32,6 +33,7 @@ export const ReservasAdminPage = () => {
 
   const [reservas, setReservas] = useState<Reserva[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const showSpinner = useDelayedLoading(isLoading);
   const [filtroEstado, setFiltroEstado] = useState<EstadoReserva | 'todas'>('todas');
   const [filtroFecha, setFiltroFecha] = useState('');
 
@@ -249,7 +251,7 @@ export const ReservasAdminPage = () => {
                   ))}
                 </div>
 
-                {isLoading ? (
+                {showSpinner ? (
                   <div className="flex justify-center py-16">
                     <LoadingSpinner size="lg" text="Cargando reservas..." />
                   </div>
