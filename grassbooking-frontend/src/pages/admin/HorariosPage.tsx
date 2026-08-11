@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RefreshCw, Clock } from 'lucide-react';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
-import { useDelayedLoading } from '../../hooks/useDelayedLoading';
+import { adminCache } from '../../lib/adminCache';
 import { useCanchas } from '../../hooks/useCanchas';
 import api from '../../services/api';
 import { ApiResponse, Horario, DiaSemana } from '../../types';
@@ -28,7 +28,6 @@ export const HorariosPage = () => {
   const [canchaId, setCanchaId] = useState<number | null>(null);
   const [horarios, setHorarios] = useState<Horario[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const showSpinner = useDelayedLoading(isLoading);
   const [toggling, setToggling] = useState<number | null>(null);
 
   // Generador
@@ -46,10 +45,16 @@ export const HorariosPage = () => {
   }, [canchas, canchaId]);
 
   const cargarHorarios = (id: number) => {
-    setIsLoading(true);
+    const cacheKey = `horarios:${id}`;
+    const cached = adminCache.get<Horario[]>(cacheKey);
+    if (cached) setHorarios(cached);
+    else setIsLoading(true);
     api
       .get<ApiResponse<Horario[]>>(`/horarios/${id}`)
-      .then((res) => setHorarios(res.data.data))
+      .then((res) => {
+        setHorarios(res.data.data);
+        adminCache.set(cacheKey, res.data.data);
+      })
       .finally(() => setIsLoading(false));
   };
 
@@ -100,6 +105,7 @@ export const HorariosPage = () => {
         dias: diasSeleccionados,
       });
       setMsgGenerar(res.data.message);
+      adminCache.del(`horarios:${canchaId}`);
       cargarHorarios(canchaId);
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -251,7 +257,7 @@ export const HorariosPage = () => {
                 Haz clic en un turno para activar o desactivarlo individualmente.
               </p>
 
-              {showSpinner ? (
+              {isLoading ? (
                 <div className="flex justify-center py-16">
                   <LoadingSpinner size="lg" text="Cargando horarios..." />
                 </div>

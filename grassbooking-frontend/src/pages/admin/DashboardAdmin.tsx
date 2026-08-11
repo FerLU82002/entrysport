@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
 import { CalendarDays, BarChart3, Wallet, LandPlot, ClipboardList, TrendingUp, AlertTriangle } from 'lucide-react';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
-import { useDelayedLoading } from '../../hooks/useDelayedLoading';
+import { adminCache } from '../../lib/adminCache';
 import { ReservaCard } from '../../components/reservas/ReservaCard';
 import { reservasService } from '../../services/reservas.service';
 import { reportesService } from '../../services/reportes.service';
@@ -36,11 +36,16 @@ const KpiCard = ({ titulo, valor, subtitulo, icon: Icon }: KpiCardProps) => (
 
 export const DashboardAdmin = () => {
   const { usuario } = useAuth();
-  const [reservasHoy, setReservasHoy] = useState<Reserva[]>([]);
-  const [resumen, setResumen] = useState<ResumenReportes | null>(null);
-  const [totalSlots, setTotalSlots] = useState(15);
-  const [isLoading, setIsLoading] = useState(true);
-  const showSpinner = useDelayedLoading(isLoading);
+  const [reservasHoy, setReservasHoy] = useState<Reserva[]>(
+    () => adminCache.get<Reserva[]>('dashboard:reservasHoy') ?? [],
+  );
+  const [resumen, setResumen] = useState<ResumenReportes | null>(
+    () => adminCache.get<ResumenReportes>('dashboard:resumen') ?? null,
+  );
+  const [totalSlots, setTotalSlots] = useState(
+    () => adminCache.get<number>('dashboard:totalSlots') ?? 15,
+  );
+  const [isLoading, setIsLoading] = useState(!adminCache.has('dashboard:reservasHoy'));
 
   useEffect(() => {
     if (!usuario?.idLocal) {
@@ -60,7 +65,11 @@ export const DashboardAdmin = () => {
         setReservasHoy(hoyRes.data);
         setResumen(resumenRes.data);
         const activas = canchasRes.data.filter((c) => c.estado === 'activa').length;
-        setTotalSlots(Math.max(activas, 1) * 15);
+        const slots = Math.max(activas, 1) * 15;
+        setTotalSlots(slots);
+        adminCache.set('dashboard:reservasHoy', hoyRes.data);
+        adminCache.set('dashboard:resumen', resumenRes.data);
+        adminCache.set('dashboard:totalSlots', slots);
       })
       .catch(() => {})
       .finally(() => setIsLoading(false));
@@ -86,7 +95,7 @@ export const DashboardAdmin = () => {
             </div>
           )}
 
-          {showSpinner ? (
+          {isLoading ? (
             <div className="flex justify-center py-16">
               <LoadingSpinner size="lg" text="Cargando datos..." />
             </div>

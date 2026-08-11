@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Cancha } from '../types';
 import { canchasService } from '../services/canchas.service';
+import { adminCache } from '../lib/adminCache';
 
 type Modo = 'publicas' | 'mi-local';
 
 export const useCanchas = (modo: Modo = 'publicas', idLocal?: number) => {
-  const [canchas, setCanchas] = useState<Cancha[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const cacheKey = modo === 'mi-local' ? 'canchas:mi-local' : `canchas:publicas:${idLocal ?? 'all'}`;
+  const cached = adminCache.get<Cancha[]>(cacheKey);
+
+  const [canchas, setCanchas] = useState<Cancha[]>(cached ?? []);
+  const [isLoading, setIsLoading] = useState(!cached);
   const [error, setError] = useState<string | null>(null);
 
   const cargar = async () => {
-    setIsLoading(true);
+    if (!adminCache.has(cacheKey)) setIsLoading(true);
     setError(null);
     try {
       const res =
@@ -18,6 +22,7 @@ export const useCanchas = (modo: Modo = 'publicas', idLocal?: number) => {
           ? await canchasService.getMisCanchas()
           : await canchasService.getAll(idLocal);
       setCanchas(res.data);
+      adminCache.set(cacheKey, res.data);
     } catch {
       setError('Error al cargar canchas');
     } finally {

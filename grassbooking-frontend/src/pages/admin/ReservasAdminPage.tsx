@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, ClipboardList, Plus, RefreshCw, LayoutList, CalendarDays } from 'lucide-react';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
-import { useDelayedLoading } from '../../hooks/useDelayedLoading';
+import { adminCache } from '../../lib/adminCache';
 import { ReservaCard } from '../../components/reservas/ReservaCard';
 import { CalendarioReservas } from '../../components/reservas/CalendarioReservas';
 import { reservasService, CreateReservaManualPayload } from '../../services/reservas.service';
@@ -31,9 +31,10 @@ export const ReservasAdminPage = () => {
   const [vista, setVista] = useState<'lista' | 'calendario'>('calendario');
   const [calRefreshKey, setCalRefreshKey] = useState(0);
 
-  const [reservas, setReservas] = useState<Reserva[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const showSpinner = useDelayedLoading(isLoading);
+  const [reservas, setReservas] = useState<Reserva[]>(
+    () => adminCache.get<Reserva[]>('reservas:default') ?? [],
+  );
+  const [isLoading, setIsLoading] = useState(!adminCache.has('reservas:default'));
   const [filtroEstado, setFiltroEstado] = useState<EstadoReserva | 'todas'>('todas');
   const [filtroFecha, setFiltroFecha] = useState('');
 
@@ -64,13 +65,15 @@ export const ReservasAdminPage = () => {
   const [errorNueva, setErrorNueva] = useState('');
 
   const cargar = async () => {
-    setIsLoading(true);
+    const isDefault = filtroEstado === 'todas' && !filtroFecha;
+    if (!isDefault || !adminCache.has('reservas:default')) setIsLoading(true);
     try {
       const params: { fecha?: string; estado?: string } = {};
       if (filtroFecha) params.fecha = filtroFecha;
       if (filtroEstado !== 'todas') params.estado = filtroEstado;
       const res = await reservasService.getTodas(params);
       setReservas(res.data);
+      if (isDefault) adminCache.set('reservas:default', res.data);
     } catch {
     } finally {
       setIsLoading(false);
@@ -251,7 +254,7 @@ export const ReservasAdminPage = () => {
                   ))}
                 </div>
 
-                {showSpinner ? (
+                {isLoading ? (
                   <div className="flex justify-center py-16">
                     <LoadingSpinner size="lg" text="Cargando reservas..." />
                   </div>

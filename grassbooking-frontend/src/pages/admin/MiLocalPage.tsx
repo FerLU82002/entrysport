@@ -6,7 +6,7 @@ import { z } from 'zod';
 import axios from 'axios';
 import { CheckCircle2, AlertTriangle, Landmark } from 'lucide-react';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
-import { useDelayedLoading } from '../../hooks/useDelayedLoading';
+import { adminCache } from '../../lib/adminCache';
 import { SubidaFotos } from '../../components/common/SubidaFotos';
 import { localesService } from '../../services/locales.service';
 import { mercadoPagoOauthService } from '../../services/mercadopago-oauth.service';
@@ -25,11 +25,16 @@ type FormData = z.infer<typeof schema>;
 
 export const MiLocalPage = () => {
   const { usuario } = useAuth();
-  const [local, setLocal] = useState<Local | null>(null);
-  const [fotos, setFotos] = useState<string[]>([]);
-  const [imagenPortada, setImagenPortada] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const showSpinner = useDelayedLoading(isLoading);
+  const [local, setLocal] = useState<Local | null>(
+    () => adminCache.get<Local>('mi-local:data') ?? null,
+  );
+  const [fotos, setFotos] = useState<string[]>(
+    () => adminCache.get<string[]>('mi-local:fotos') ?? [],
+  );
+  const [imagenPortada, setImagenPortada] = useState<string[]>(
+    () => adminCache.get<string[]>('mi-local:portada') ?? [],
+  );
+  const [isLoading, setIsLoading] = useState(!adminCache.has('mi-local:data'));
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
   const [exito, setExito] = useState('');
@@ -45,7 +50,7 @@ export const MiLocalPage = () => {
   });
 
   const cargar = () => {
-    setIsLoading(true);
+    if (!adminCache.has('mi-local:data')) setIsLoading(true);
     localesService
       .getMiLocal()
       .then((res) => {
@@ -57,8 +62,13 @@ export const MiLocalPage = () => {
           telefono: res.data.telefono,
           email: res.data.email || '',
         });
-        setFotos(res.data.fotos || []);
-        setImagenPortada(res.data.imagenUrl ? [res.data.imagenUrl] : []);
+        const f = res.data.fotos || [];
+        const p = res.data.imagenUrl ? [res.data.imagenUrl] : [];
+        setFotos(f);
+        setImagenPortada(p);
+        adminCache.set('mi-local:data', res.data);
+        adminCache.set('mi-local:fotos', f);
+        adminCache.set('mi-local:portada', p);
       })
       .catch(() => setLocal(null))
       .finally(() => setIsLoading(false));
@@ -95,7 +105,7 @@ export const MiLocalPage = () => {
                 : 'Aún no has registrado tu local. Completa estos datos para empezar a publicar tus espacios deportivos.'}
             </p>
 
-            {showSpinner ? (
+            {isLoading ? (
               <div className="flex justify-center py-16">
                 <LoadingSpinner size="lg" text="Cargando..." />
               </div>

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
-import { useDelayedLoading } from '../../hooks/useDelayedLoading';
 import { CanchaCard } from '../../components/canchas/CanchaCard';
 import { CanchaForm } from '../../components/canchas/CanchaForm';
 import { useCanchas } from '../../hooks/useCanchas';
@@ -10,7 +9,6 @@ import { Cancha } from '../../types';
 
 export const GestionCanchasPage = () => {
   const { canchas, isLoading, recargar } = useCanchas('mi-local');
-  const showSpinner = useDelayedLoading(isLoading);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [canchaEditando, setCanchaEditando] = useState<Cancha | undefined>();
   const [guardando, setGuardando] = useState(false);
@@ -86,7 +84,7 @@ export const GestionCanchasPage = () => {
             </div>
           )}
 
-          {showSpinner ? (
+          {isLoading ? (
             <div className="flex justify-center py-16">
               <LoadingSpinner size="lg" text="Cargando canchas..." />
             </div>

@@ -1,20 +1,22 @@
 import { useEffect, useState } from 'react';
 import { Tag, Wallet, Eye, CheckCircle } from 'lucide-react';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
-import { useDelayedLoading } from '../../hooks/useDelayedLoading';
+import { adminCache } from '../../lib/adminCache';
 import { localesService } from '../../services/locales.service';
 import { useAuth } from '../../hooks/useAuth';
 
+interface ConfigPago { descuentoPct: number; adelantoPct: number; }
+
 export const MarketingPage = () => {
   const { usuario } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const showSpinner = useDelayedLoading(isLoading);
+  const [isLoading, setIsLoading] = useState(!adminCache.has('marketing:configPago'));
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
 
-  const [descuentoPct, setDescuentoPct] = useState(0);
-  const [adelantoPct, setAdelantoPct] = useState(100);
+  const cached = adminCache.get<ConfigPago>('marketing:configPago');
+  const [descuentoPct, setDescuentoPct] = useState(cached?.descuentoPct ?? 0);
+  const [adelantoPct, setAdelantoPct] = useState(cached?.adelantoPct ?? 100);
 
   // Ejemplo de precio para el preview
   const precioEjemplo = 50;
@@ -24,11 +26,15 @@ export const MarketingPage = () => {
       setIsLoading(false);
       return;
     }
+    if (!adminCache.has('marketing:configPago')) setIsLoading(true);
     localesService
       .getMiConfigPago()
       .then((res) => {
-        setDescuentoPct(res.data.descuentoPct ?? 0);
-        setAdelantoPct(res.data.adelantoPct ?? 100);
+        const d = res.data.descuentoPct ?? 0;
+        const a = res.data.adelantoPct ?? 100;
+        setDescuentoPct(d);
+        setAdelantoPct(a);
+        adminCache.set('marketing:configPago', { descuentoPct: d, adelantoPct: a });
       })
       .catch(() => setError('No se pudo cargar la configuración'))
       .finally(() => setIsLoading(false));
@@ -65,7 +71,7 @@ export const MarketingPage = () => {
               <div className="card text-center py-10">
                 <p className="text-ink-500 text-sm">Aún no tienes un local asignado.</p>
               </div>
-            ) : showSpinner ? (
+            ) : isLoading ? (
               <div className="flex justify-center py-16">
                 <LoadingSpinner size="lg" text="Cargando configuración..." />
               </div>
