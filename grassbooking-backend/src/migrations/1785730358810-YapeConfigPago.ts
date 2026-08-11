@@ -10,9 +10,9 @@ export class YapeConfigPago1785730358810 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       ALTER TABLE "configuraciones_pago"
-        ADD COLUMN "yape_activo" boolean NOT NULL DEFAULT false,
-        ADD COLUMN "yape_qr_url" text,
-        ADD COLUMN "yape_telefono" character varying(20)
+        ADD COLUMN IF NOT EXISTS "yape_activo" boolean NOT NULL DEFAULT false,
+        ADD COLUMN IF NOT EXISTS "yape_qr_url" text,
+        ADD COLUMN IF NOT EXISTS "yape_telefono" character varying(20)
     `);
   }
 

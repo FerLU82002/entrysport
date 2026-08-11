@@ -9,10 +9,10 @@ export class FotosCanchasYLocales1785692884442 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      ALTER TABLE "canchas" ADD COLUMN "fotos" text[] NOT NULL DEFAULT '{}'
+      ALTER TABLE "canchas" ADD COLUMN IF NOT EXISTS "fotos" text[] NOT NULL DEFAULT '{}'
     `);
     await queryRunner.query(`
-      ALTER TABLE "locales" ADD COLUMN "fotos" text[] NOT NULL DEFAULT '{}'
+      ALTER TABLE "locales" ADD COLUMN IF NOT EXISTS "fotos" text[] NOT NULL DEFAULT '{}'
     `);
   }
 

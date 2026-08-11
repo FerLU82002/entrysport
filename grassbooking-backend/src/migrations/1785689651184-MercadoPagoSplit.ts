@@ -22,10 +22,12 @@ export class MercadoPagoSplit1785689651184 implements MigrationInterface {
 
     // --- cuentas_mercadopago ---
     await queryRunner.query(`
-      CREATE TYPE "cuentas_mercadopago_estado_enum" AS ENUM ('pendiente', 'conectada', 'desconectada', 'error')
+      DO $$ BEGIN
+        CREATE TYPE "cuentas_mercadopago_estado_enum" AS ENUM ('pendiente', 'conectada', 'desconectada', 'error');
+      EXCEPTION WHEN duplicate_object THEN NULL; END $$
     `);
     await queryRunner.query(`
-      CREATE TABLE "cuentas_mercadopago" (
+      CREATE TABLE IF NOT EXISTS "cuentas_mercadopago" (
         "id" SERIAL PRIMARY KEY,
         "id_local" integer NOT NULL,
         "mercadopago_user_id" text,
@@ -49,7 +51,7 @@ export class MercadoPagoSplit1785689651184 implements MigrationInterface {
 
     // --- mercadopago_oauth_states ---
     await queryRunner.query(`
-      CREATE TABLE "mercadopago_oauth_states" (
+      CREATE TABLE IF NOT EXISTS "mercadopago_oauth_states" (
         "id" SERIAL PRIMARY KEY,
         "id_local" integer NOT NULL,
         "id_usuario" integer NOT NULL,
@@ -63,8 +65,10 @@ export class MercadoPagoSplit1785689651184 implements MigrationInterface {
 
     // --- webhook_eventos_pago ---
     await queryRunner.query(`
-      CREATE TYPE "webhook_eventos_pago_resultado_enum" AS ENUM
-        ('aprobado', 'rechazado', 'ignorado_duplicado', 'pendiente', 'error_validacion')
+      DO $$ BEGIN
+        CREATE TYPE "webhook_eventos_pago_resultado_enum" AS ENUM
+          ('aprobado', 'rechazado', 'ignorado_duplicado', 'pendiente', 'error_validacion');
+      EXCEPTION WHEN duplicate_object THEN NULL; END $$
     `);
     await queryRunner.query(`
       CREATE TABLE "webhook_eventos_pago" (
@@ -84,19 +88,21 @@ export class MercadoPagoSplit1785689651184 implements MigrationInterface {
 
     // --- pagos: columnas de split ---
     await queryRunner.query(`
-      CREATE TYPE "pagos_estado_distribucion_enum" AS ENUM ('no_aplica', 'pendiente', 'distribuido', 'fallido')
+      DO $$ BEGIN
+        CREATE TYPE "pagos_estado_distribucion_enum" AS ENUM ('no_aplica', 'pendiente', 'distribuido', 'fallido');
+      EXCEPTION WHEN duplicate_object THEN NULL; END $$
     `);
     await queryRunner.query(`
       ALTER TABLE "pagos"
-        ADD COLUMN "id_local" integer,
-        ADD COLUMN "mercadopago_account_id" text,
-        ADD COLUMN "preference_id" text,
-        ADD COLUMN "external_reference" text,
-        ADD COLUMN "monto_comision_plataforma" decimal(8,2),
-        ADD COLUMN "monto_neto_local" decimal(8,2),
-        ADD COLUMN "estado_distribucion" "pagos_estado_distribucion_enum" NOT NULL DEFAULT 'no_aplica',
-        ADD COLUMN "idempotency_key" uuid,
-        ADD COLUMN "fecha_ultima_actualizacion" TIMESTAMP NOT NULL DEFAULT now()
+        ADD COLUMN IF NOT EXISTS "id_local" integer,
+        ADD COLUMN IF NOT EXISTS "mercadopago_account_id" text,
+        ADD COLUMN IF NOT EXISTS "preference_id" text,
+        ADD COLUMN IF NOT EXISTS "external_reference" text,
+        ADD COLUMN IF NOT EXISTS "monto_comision_plataforma" decimal(8,2),
+        ADD COLUMN IF NOT EXISTS "monto_neto_local" decimal(8,2),
+        ADD COLUMN IF NOT EXISTS "estado_distribucion" "pagos_estado_distribucion_enum" NOT NULL DEFAULT 'no_aplica',
+        ADD COLUMN IF NOT EXISTS "idempotency_key" uuid,
+        ADD COLUMN IF NOT EXISTS "fecha_ultima_actualizacion" TIMESTAMP NOT NULL DEFAULT now()
     `);
     // Backfill de idempotency_key para filas existentes antes de exigir NOT NULL + UNIQUE
     await queryRunner.query(`
