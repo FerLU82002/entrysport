@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Download, ArrowRight, BarChart3, Wallet } from 'lucide-react';
-import { Sidebar } from '../../components/common/Sidebar';
-import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { GraficoOcupacion } from '../../components/reportes/GraficoOcupacion';
 import { GraficoIngresos } from '../../components/reportes/GraficoIngresos';
@@ -119,14 +117,7 @@ export const ReportesPage = () => {
   const hayAlgunDato = resumen || ocupacion.length > 0 || ingresos.length > 0;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-ink-50">
-      <div className="hidden md:block">
-        <Sidebar />
-      </div>
-      <div className="flex-1 flex flex-col min-h-0">
-        <Navbar />
-        <div className="flex-1 overflow-y-auto">
-        <main className="p-6 max-w-6xl">
+    <main className="p-6 max-w-6xl">
 
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
             <h1 className="text-xl font-semibold text-ink-900">Reportes</h1>
@@ -246,9 +237,6 @@ export const ReportesPage = () => {
             </div>
           </div>
 
-        </main>
-        </div>
-      </div>
-    </div>
+    </main>
   );
 };

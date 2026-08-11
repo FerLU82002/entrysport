@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { X, ClipboardList, Plus, RefreshCw, LayoutList, CalendarDays } from 'lucide-react';
-import { Sidebar } from '../../components/common/Sidebar';
-import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { ReservaCard } from '../../components/reservas/ReservaCard';
 import { CalendarioReservas } from '../../components/reservas/CalendarioReservas';
@@ -23,7 +21,10 @@ const ESTADOS_RESERVA: { value: EstadoReserva | 'todas'; label: string }[] = [
 
 const METODOS_PAGO = ['efectivo', 'yape', 'plin', 'transferencia', 'tarjeta'];
 
-const hoy = () => new Date().toISOString().split('T')[0];
+const hoy = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 
 export const ReservasAdminPage = () => {
   const [vista, setVista] = useState<'lista' | 'calendario'>('calendario');
@@ -159,14 +160,8 @@ export const ReservasAdminPage = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-ink-50">
-      <div className="hidden md:block">
-        <Sidebar />
-      </div>
-      <div className="flex-1 flex flex-col min-h-0 min-w-0">
-        <Navbar />
-        <div className="flex-1 overflow-y-auto overflow-x-hidden">
-          <main className="px-4 py-4 sm:px-6 sm:py-6 max-w-6xl w-full">
+    <>
+      <main className="px-4 py-4 sm:px-6 sm:py-6 max-w-6xl w-full">
             {/* ── Header ── */}
             <div className="flex items-center justify-between gap-2 mb-4">
               <h1 className="text-base sm:text-xl font-semibold text-ink-900 truncate">
@@ -277,9 +272,7 @@ export const ReservasAdminPage = () => {
                 )}
               </>
             )}
-          </main>
-        </div>
-      </div>
+      </main>
 
       {/* ── Modal: gestionar reserva existente ── */}
       {modalReserva && (() => {
@@ -645,6 +638,6 @@ export const ReservasAdminPage = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };

@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
 import { CalendarDays, BarChart3, Wallet, LandPlot, ClipboardList, TrendingUp, AlertTriangle } from 'lucide-react';
-import { Sidebar } from '../../components/common/Sidebar';
-import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { ReservaCard } from '../../components/reservas/ReservaCard';
 import { reservasService } from '../../services/reservas.service';
@@ -70,14 +68,7 @@ export const DashboardAdmin = () => {
   const porcentajeOcupacion = Math.round((reservasActivas.length / totalSlots) * 100);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-ink-50">
-      <div className="hidden md:block">
-        <Sidebar />
-      </div>
-      <div className="flex-1 flex flex-col min-h-0">
-        <Navbar />
-        <div className="flex-1 overflow-y-auto">
-        <main className="p-6 max-w-6xl">
+    <main className="p-6 max-w-6xl">
           <h1 className="text-xl font-semibold text-ink-900 mb-6">Dashboard</h1>
 
           {!usuario?.idLocal && (
@@ -172,9 +163,6 @@ export const DashboardAdmin = () => {
               </div>
             </>
           )}
-        </main>
-        </div>
-      </div>
-    </div>
+    </main>
   );
 };

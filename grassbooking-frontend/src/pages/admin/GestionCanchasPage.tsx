@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { Sidebar } from '../../components/common/Sidebar';
-import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { CanchaCard } from '../../components/canchas/CanchaCard';
 import { CanchaForm } from '../../components/canchas/CanchaForm';
@@ -48,14 +46,7 @@ export const GestionCanchasPage = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-ink-50">
-      <div className="hidden md:block">
-        <Sidebar />
-      </div>
-      <div className="flex-1 flex flex-col min-h-0">
-        <Navbar />
-        <div className="flex-1 overflow-y-auto">
-        <main className="p-6 max-w-6xl">
+    <main className="p-6 max-w-6xl">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-xl font-semibold text-ink-900">Espacios deportivos</h1>
             <button
@@ -110,9 +101,6 @@ export const GestionCanchasPage = () => {
               ))}
             </div>
           )}
-        </main>
-        </div>
-      </div>
-    </div>
+    </main>
   );
 };

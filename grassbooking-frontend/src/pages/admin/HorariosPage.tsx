@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { RefreshCw, Clock } from 'lucide-react';
-import { Sidebar } from '../../components/common/Sidebar';
-import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { useCanchas } from '../../hooks/useCanchas';
 import api from '../../services/api';
@@ -124,14 +122,7 @@ export const HorariosPage = () => {
   const slotCount = Math.max(0, cH - aH + 1);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-ink-50">
-      <div className="hidden md:block">
-        <Sidebar />
-      </div>
-      <div className="flex-1 flex flex-col min-h-0">
-        <Navbar />
-        <div className="flex-1 overflow-y-auto">
-          <main className="p-6 max-w-5xl">
+    <main className="p-6 max-w-5xl">
             <h1 className="text-xl font-semibold text-ink-900 mb-6">Configuración de horarios</h1>
 
             {/* Selector de cancha */}
@@ -305,9 +296,6 @@ export const HorariosPage = () => {
                 </div>
               )}
             </div>
-          </main>
-        </div>
-      </div>
-    </div>
+    </main>
   );
 };

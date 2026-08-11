@@ -240,14 +240,6 @@ export class ReservasService {
   }
 
   async createManual(dto: CreateReservaManualDto, adminUserId: number, idLocal: number) {
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const fechaReserva = new Date(dto.fechaReserva + 'T00:00:00');
-
-    if (fechaReserva < hoy) {
-      throw new BadRequestException('No se pueden crear reservas en fechas pasadas');
-    }
-
     const [horaH, horaM] = dto.horaInicio.split(':').map(Number);
     if (horaH < 8 || horaH > 23) {
       throw new BadRequestException('El horario debe ser entre 08:00 y 23:00');

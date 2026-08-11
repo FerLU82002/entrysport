@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Tag, Wallet, Eye, CheckCircle } from 'lucide-react';
-import { Sidebar } from '../../components/common/Sidebar';
-import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { localesService } from '../../services/locales.service';
 import { useAuth } from '../../hooks/useAuth';
@@ -55,14 +53,7 @@ export const MarketingPage = () => {
   const montoPendiente = Number((montoConDescuento - montoAdelanto).toFixed(2));
 
   return (
-    <div className="flex h-screen overflow-hidden bg-ink-50">
-      <div className="hidden md:block">
-        <Sidebar />
-      </div>
-      <div className="flex-1 flex flex-col min-h-0">
-        <Navbar />
-        <div className="flex-1 overflow-y-auto">
-          <main className="p-6 max-w-3xl">
+    <main className="p-6 max-w-3xl">
             <h1 className="text-xl font-semibold text-ink-900 mb-1">Marketing</h1>
             <p className="text-sm text-ink-500 mb-6">
               Configura descuentos y cómo quieres que tus clientes paguen al reservar.
@@ -258,9 +249,6 @@ export const MarketingPage = () => {
                 </button>
               </div>
             )}
-          </main>
-        </div>
-      </div>
-    </div>
+    </main>
   );
 };

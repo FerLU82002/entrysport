@@ -5,8 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import axios from 'axios';
 import { CheckCircle2, AlertTriangle, Landmark } from 'lucide-react';
-import { Sidebar } from '../../components/common/Sidebar';
-import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { SubidaFotos } from '../../components/common/SubidaFotos';
 import { localesService } from '../../services/locales.service';
@@ -87,14 +85,7 @@ export const MiLocalPage = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-ink-50">
-      <div className="hidden md:block">
-        <Sidebar />
-      </div>
-      <div className="flex-1 flex flex-col min-h-0">
-        <Navbar />
-        <div className="flex-1 overflow-y-auto">
-          <main className="p-6 max-w-3xl">
+    <main className="p-6 max-w-3xl">
             <h1 className="text-xl font-semibold text-ink-900 mb-1">Mi local</h1>
             <p className="text-sm text-ink-500 mb-6">
               {local
@@ -166,10 +157,7 @@ export const MiLocalPage = () => {
                 {local && <ConfigPagoCard />}
               </>
             )}
-          </main>
-        </div>
-      </div>
-    </div>
+    </main>
   );
 };
 

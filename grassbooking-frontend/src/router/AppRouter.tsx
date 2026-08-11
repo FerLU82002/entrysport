@@ -16,6 +16,7 @@ import { LocalDetallePage } from '../pages/usuario/LocalDetallePage';
 import { ReservaPage } from '../pages/usuario/ReservaPage';
 import { MisReservasPage } from '../pages/usuario/MisReservasPage';
 
+import { AdminLayout } from '../layouts/AdminLayout';
 import { DashboardAdmin } from '../pages/admin/DashboardAdmin';
 import { MiLocalPage } from '../pages/admin/MiLocalPage';
 import { GestionCanchasPage } from '../pages/admin/GestionCanchasPage';
@@ -74,14 +75,16 @@ export const AppRouter = () => {
       </Route>
 
       <Route element={<ProtectedRoute roles={['admin_local']} />}>
-        <Route path="/admin" element={<DashboardAdmin />} />
-        <Route path="/admin/mi-local" element={<MiLocalPage />} />
-        <Route path="/admin/canchas" element={<GestionCanchasPage />} />
-        <Route path="/admin/horarios" element={<HorariosPage />} />
-        <Route path="/admin/reservas" element={<ReservasAdminPage />} />
-        <Route path="/admin/reportes" element={<ReportesPage />} />
-        <Route path="/admin/excepciones" element={<ExcepcionesPage />} />
-        <Route path="/admin/marketing" element={<MarketingPage />} />
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<DashboardAdmin />} />
+          <Route path="/admin/mi-local" element={<MiLocalPage />} />
+          <Route path="/admin/canchas" element={<GestionCanchasPage />} />
+          <Route path="/admin/horarios" element={<HorariosPage />} />
+          <Route path="/admin/reservas" element={<ReservasAdminPage />} />
+          <Route path="/admin/reportes" element={<ReportesPage />} />
+          <Route path="/admin/excepciones" element={<ExcepcionesPage />} />
+          <Route path="/admin/marketing" element={<MarketingPage />} />
+        </Route>
       </Route>
 
       <Route element={<ProtectedRoute roles={['super_admin']} />}>

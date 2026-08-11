@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Ban, CheckCircle2, Clock, Lock, X } from 'lucide-react';
-import { Sidebar } from '../../components/common/Sidebar';
-import { Navbar } from '../../components/common/Navbar';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { useCanchas } from '../../hooks/useCanchas';
 import { excepcionesService } from '../../services/excepciones.service';
@@ -119,14 +117,7 @@ export const ExcepcionesPage = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-ink-50">
-      <div className="hidden md:block">
-        <Sidebar />
-      </div>
-      <div className="flex-1 flex flex-col min-h-0">
-        <Navbar />
-        <div className="flex-1 overflow-y-auto">
-          <main className="p-6 max-w-4xl">
+    <main className="p-6 max-w-4xl">
             <h1 className="text-xl font-semibold text-ink-900 mb-1">Fechas especiales</h1>
             <p className="text-sm text-ink-500 mb-6">
               Bloquea fechas o franjas horarias específicas sin modificar la configuración semanal.
@@ -284,9 +275,6 @@ export const ExcepcionesPage = () => {
                 )}
               </>
             )}
-          </main>
-        </div>
-      </div>
-    </div>
+    </main>
   );
 };
